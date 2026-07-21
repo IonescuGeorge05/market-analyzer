@@ -66,28 +66,47 @@ Working:
 - NewsAPI integrated and returning articles
 - Collector recently hardened: company-name mapping (AAPL -> Apple), finance-word
   query, junk-domain blocklist, title-relevance filter, dedup, over-fetch-then-filter
+- 38 unit tests over `_signal()` and `_weight()` in `tests/`. Pure functions, so
+  they need no keys and no network: `pytest -q`
+- `app/errors.py` -> `reason(e)` extracts the provider's real message into the
+  `warnings` array. It lives outside `app/agents/` because both the Analyzer and
+  the Reporter use it and design rule 1 forbids cross-agent imports.
+- Git: this project is its own repo now, pushed to a private GitHub remote.
+  (A stray empty `.git` in the home directory used to swallow it.)
 
 Known open issues:
-- **Claude scoring returns BadRequestError and silently falls back to VADER.**
-  Likely a stale model string in `app/config.py`. Diagnose via the uvicorn log
-  line "LLM scoring failed, falling back to VADER: ...". The tell is `scorer`
-  in the response saying `vader` instead of `llm`. THIS IS THE TOP PRIORITY.
+- **LLM scoring is blocked on an empty API credit balance, NOT a code bug.**
+  RESOLVED as a diagnosis, not yet as a state. The earlier "stale model string"
+  theory was wrong and is disproved: `claude-haiku-4-5-20251001` in
+  `app/config.py` is valid and current, the key loads, the payload is fine.
+  The real 400 body reads "Your credit balance is too low to access the
+  Anthropic API." Anthropic returns **400 BadRequestError** for insufficient
+  credits rather than a billing-shaped error, which is what made this look like
+  a malformed request for so long.
+  Fix is to buy credits at console.anthropic.com (API credits are a separate
+  wallet from a Claude subscription; ~half a cent per `/analyze` run on Haiku).
+  Do not go looking for this in the code again.
 - VADER scores are poor (it scored a "Poor Stock Performance" headline at +0.93).
-  It is a fallback only and must never be the normal path.
+  It is a fallback only and must never be the normal path. Until credits are
+  added, `scorer` in the response will read `vader` and that is expected.
 - Alpha Vantage and Reddit keys not yet added, so `price` is null and there is
   no social data. Both are expected warnings right now, not bugs.
 
 ## Roadmap
 
-1. Fix the LLM BadRequestError so scoring runs on Claude
+1. ~~Fix the LLM BadRequestError~~ — diagnosed: buy API credits, no code fix
 2. Verify relevance filtering actually improved article quality
 3. Add Alpha Vantage key -> price context populated
 4. Add Reddit credentials -> social source live
 5. Add StockTwits as a second social source (no auth needed, public endpoint,
    ticker-tagged, and users self-label Bullish/Bearish — useful as a ground-truth
    check against our own LLM scores)
-6. Unit tests for `_signal()` and `_weight()` — pure functions, easy wins
+6. ~~Unit tests for `_signal()` and `_weight()`~~ — DONE, 38 tests in `tests/`
 7. React dashboard last
+
+Items 2-5 need no Anthropic credits, so they are the ones to pick up while
+billing is pending. 5 is the best of them: StockTwits' self-labelled
+Bullish/Bearish tags become a validation set for our LLM scores once 1 clears.
 
 ## Working preferences
 
