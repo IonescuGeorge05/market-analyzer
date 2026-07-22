@@ -4,6 +4,7 @@ import logging
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 
+from app import store
 from app.agents import analyzer, collector
 from app.pipeline import run_pipeline
 from app.schemas import CollectedData, Report, SentimentAnalysis
@@ -48,3 +49,18 @@ async def debug_collect(ticker: str):
 @app.get("/debug/analyze/{ticker}", response_model=SentimentAnalysis)
 async def debug_analyze(ticker: str):
     return await analyzer.run(await collector.run(ticker))
+
+
+# --- Run history: the record every analysis is written to, so the signal can
+#     be evaluated later against what prices actually did. ---
+
+@app.get("/history")
+async def get_history(ticker: str | None = None, limit: int = 100):
+    """Past runs, newest first. Optional ?ticker= filter."""
+    return {"runs": store.history(ticker=ticker, limit=limit)}
+
+
+@app.get("/history/stats")
+async def get_history_stats():
+    """How much has been recorded so far."""
+    return store.stats()

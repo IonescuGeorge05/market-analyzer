@@ -5,6 +5,7 @@ pydantic-settings==2.7.0
 python-dotenv==1.0.1
 httpx==0.28.1
 praw==7.8.1
+yfinance==1.5.1
 vaderSentiment==3.3.2
 langchain==0.3.14
 langchain-core==1.5.0

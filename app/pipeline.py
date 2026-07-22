@@ -8,6 +8,7 @@ others do not care. That decoupling is the point.
 import logging
 import time
 
+from app import store
 from app.agents import analyzer, collector, reporter
 from app.schemas import Report
 
@@ -27,5 +28,12 @@ async def run_pipeline(ticker: str) -> Report:
     report = await reporter.run(sentiment)
     log.info("agent3 signal %s (%d%%) in %.1fs", report.signal,
              report.confidence, time.perf_counter() - t0)
+
+    # Record the signal so it can be evaluated later against forward returns.
+    # store.save never raises (design rule 3), so a bad write cannot break the
+    # analysis the user actually asked for.
+    run_id = store.save(report)
+    if run_id:
+        log.info("recorded run %d for %s", run_id, ticker)
 
     return report

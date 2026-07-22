@@ -472,7 +472,46 @@ async def _fetch_reddit(ticker: str):
     return await asyncio.to_thread(_fetch_reddit_sync, ticker)
 
 
-async def _fetch_price(ticker: str) -> tuple[PriceData, list[str]]:
+def _price_from_closes(closes: list[float]) -> PriceData:
+    """Build PriceData from a list of daily closes, oldest first.
+
+    Pure and testable. The reference point is 5 trading sessions back, or the
+    oldest available if the series is shorter. Trend has a 1% dead zone so
+    normal daily noise does not read as a move.
+    """
+    closes = [c for c in closes if c is not None]
+    if not closes:
+        return PriceData()
+
+    current = closes[-1]
+    ref = closes[-min(6, len(closes))]        # 5 sessions back, inclusive
+    change = ((current - ref) / ref) * 100 if ref else 0.0
+    trend = "up" if change > 1 else "down" if change < -1 else "flat"
+    return PriceData(current=round(current, 2), week_ago=round(ref, 2),
+                     change_pct=round(change, 2), trend=trend)
+
+
+def _fetch_price_yf(ticker: str) -> tuple[PriceData, list[str]]:
+    """yfinance is synchronous, so this runs in a thread (like PRAW).
+
+    Preferred over Alpha Vantage: no key, no daily quota, and it returns years
+    of history rather than a compact window - which is what makes forward-
+    return evaluation possible later.
+    """
+    try:
+        import yfinance as yf
+        hist = yf.Ticker(ticker).history(period="1mo", auto_adjust=True)
+        if hist.empty:
+            return PriceData(), ["price data empty (unknown ticker?)"]
+        closes = [float(c) for c in hist["Close"].tolist()]
+        return _price_from_closes(closes), []
+    except Exception as e:
+        log.warning("yfinance fetch failed for %s: %s", ticker, e)
+        return PriceData(), [f"yfinance unavailable: {e}"]
+
+
+async def _fetch_price_av(ticker: str) -> tuple[PriceData, list[str]]:
+    """Alpha Vantage fallback. Free tier is 25 requests/day, hence the fallback."""
     if not settings.alphavantage_key:
         return PriceData(), ["ALPHAVANTAGE_KEY missing - skipped price"]
 
@@ -494,15 +533,24 @@ async def _fetch_price(ticker: str) -> tuple[PriceData, list[str]]:
     if not series:
         return PriceData(), ["price data empty (rate limit or bad ticker)"]
 
-    days = sorted(series.keys(), reverse=True)
-    current = float(series[days[0]]["4. close"])
-    ref = days[min(5, len(days) - 1)]
-    week_ago = float(series[ref]["4. close"])
-    change = ((current - week_ago) / week_ago) * 100 if week_ago else 0.0
-    trend = "up" if change > 1 else "down" if change < -1 else "flat"
+    days = sorted(series.keys())                     # oldest first
+    closes = [float(series[d]["4. close"]) for d in days]
+    return _price_from_closes(closes), []
 
-    return PriceData(current=round(current, 2), week_ago=round(week_ago, 2),
-                     change_pct=round(change, 2), trend=trend), []
+
+async def _fetch_price(ticker: str) -> tuple[PriceData, list[str]]:
+    """Price context. yfinance first, Alpha Vantage only if it comes back empty."""
+    price, warnings = await asyncio.to_thread(_fetch_price_yf, ticker)
+    if price.current is not None:
+        return price, []
+
+    # yfinance gave nothing - try Alpha Vantage if a key is configured.
+    av_price, av_warnings = await _fetch_price_av(ticker)
+    if av_price.current is not None:
+        return av_price, []
+
+    # Neither worked. Surface both reasons so the failure is diagnosable.
+    return PriceData(), warnings + av_warnings
 
 
 async def run(ticker: str) -> CollectedData:

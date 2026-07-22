@@ -7,3 +7,8 @@ __pycache__/
 .venv/
 venv/
 .pytest_cache/
+
+# Recorded run history - local data, not source. Rebuilds itself as the app runs.
+data/
+node_modules/
+frontend/dist/
