@@ -32,14 +32,41 @@ log = logging.getLogger(__name__)
 
 # Ticker -> company name. NewsAPI matches prose, and prose says "Apple", not
 # "AAPL", so searching the name finds far more real coverage than the symbol.
+# An unmapped ticker searches the bare symbol, which matches far less prose:
+# PLTR returned 15 candidate articles where AAPL returned 99, and RIVN
+# returned so few that it fell under the 5-item thin-evidence threshold. So
+# the map is worth keeping wide. Retail-popular names matter as much as the
+# index heavyweights here, because they are what people actually look up.
 COMPANY_NAMES = {
+    # Big tech
     "AAPL": "Apple", "MSFT": "Microsoft", "GOOGL": "Alphabet", "GOOG": "Alphabet",
     "AMZN": "Amazon", "TSLA": "Tesla", "META": "Meta", "NVDA": "Nvidia",
     "NFLX": "Netflix", "AMD": "AMD", "INTC": "Intel", "IBM": "IBM",
-    "ORCL": "Oracle", "CRM": "Salesforce", "UBER": "Uber", "DIS": "Disney",
-    "BA": "Boeing", "JPM": "JPMorgan", "V": "Visa", "WMT": "Walmart",
-    "KO": "Coca-Cola", "PEP": "PepsiCo", "XOM": "Exxon", "PFE": "Pfizer",
+    "ORCL": "Oracle", "CRM": "Salesforce", "ADBE": "Adobe", "CSCO": "Cisco",
+    "QCOM": "Qualcomm", "TXN": "Texas Instruments", "AVGO": "Broadcom",
+    "MU": "Micron", "ARM": "Arm Holdings", "TSM": "TSMC", "SMCI": "Supermicro",
+    # Retail-popular / high-chatter
+    "PLTR": "Palantir", "RIVN": "Rivian", "LCID": "Lucid", "NIO": "Nio",
+    "COIN": "Coinbase", "HOOD": "Robinhood", "SOFI": "SoFi",
+    "MSTR": "MicroStrategy", "GME": "GameStop", "AMC": "AMC Entertainment",
+    "SHOP": "Shopify", "SQ": "Block", "PYPL": "PayPal", "SNAP": "Snap",
+    "PINS": "Pinterest", "RBLX": "Roblox", "U": "Unity", "SPOT": "Spotify",
+    "ABNB": "Airbnb", "DASH": "DoorDash", "UBER": "Uber", "LYFT": "Lyft",
+    "ZM": "Zoom", "CRWD": "CrowdStrike", "SNOW": "Snowflake", "NET": "Cloudflare",
+    "DDOG": "Datadog", "MDB": "MongoDB", "TTD": "The Trade Desk",
+    # Industrials, finance, consumer, energy, health
+    "BA": "Boeing", "GE": "General Electric", "CAT": "Caterpillar",
+    "F": "Ford", "GM": "General Motors", "DIS": "Disney", "NKE": "Nike",
+    "SBUX": "Starbucks", "MCD": "McDonald's", "KO": "Coca-Cola",
+    "PEP": "PepsiCo", "WMT": "Walmart", "COST": "Costco", "TGT": "Target",
+    "HD": "Home Depot", "JPM": "JPMorgan", "BAC": "Bank of America",
+    "GS": "Goldman Sachs", "MS": "Morgan Stanley", "WFC": "Wells Fargo",
+    "V": "Visa", "MA": "Mastercard", "BRK.B": "Berkshire Hathaway",
+    "XOM": "Exxon", "CVX": "Chevron", "PFE": "Pfizer", "JNJ": "Johnson & Johnson",
+    "MRNA": "Moderna", "LLY": "Eli Lilly", "UNH": "UnitedHealth",
+    # Crypto
     "BTC": "Bitcoin", "ETH": "Ethereum", "DOGE": "Dogecoin", "SOL": "Solana",
+    "XRP": "XRP", "ADA": "Cardano", "AVAX": "Avalanche", "LINK": "Chainlink",
 }
 
 # Domains that are never financial journalism. Hit on real AAPL results.
@@ -77,13 +104,35 @@ def _company(ticker: str) -> str:
     return COMPANY_NAMES.get(ticker.upper(), ticker.upper())
 
 
-def _query(ticker: str) -> str:
-    """NewsAPI query. Name OR symbol, and require a finance word.
+# Symbols that are also ordinary English words. NewsAPI matches
+# case-insensitively, so putting one of these in the query floods the results:
+# `("Shopify" OR SHOP)` returned 98 articles about shopping and travel, not one
+# of which mentioned Shopify. For these, search the company name alone.
+AMBIGUOUS_SYMBOLS = {
+    "SHOP", "COIN", "CAT", "NET", "ARM", "LINK", "ALL", "ON", "IT", "CAR",
+    "GO", "KEY", "NOW", "A", "U", "F", "V", "MA", "MS", "GE", "HD", "SQ",
+    "SOL", "ADA", "TGT", "DIS", "BA", "GM", "MU", "PINS", "SNAP", "ZM",
+}
 
-    Without the finance clause, "Apple" pulls in product reviews and recipes.
+
+def _query(ticker: str) -> str:
+    """NewsAPI query: company name, plus the symbol when the symbol is safe.
+
+    The symbol adds real recall for a distinctive ticker like AAPL, but it is
+    poison for one that doubles as a word - see AMBIGUOUS_SYMBOLS. Dropping it
+    for everything cost AAPL a third of its results, so the rule is targeted
+    rather than blanket.
+
+    The finance clause is what stops "Apple" pulling in recipes and reviews.
     """
+    symbol = ticker.upper()
     company = _company(ticker)
-    subject = f'"{company}" OR {ticker.upper()}' if company != ticker.upper() else ticker.upper()
+    if company.upper() == symbol:            # unmapped: symbol is all we have
+        subject = symbol
+    elif symbol in AMBIGUOUS_SYMBOLS:        # name only, symbol would flood
+        subject = f'"{company}"'
+    else:
+        subject = f'"{company}" OR {symbol}'
     return f"({subject}) AND (stock OR shares OR earnings OR market OR investors)"
 
 
@@ -107,16 +156,24 @@ def _norm_title(title: str) -> str:
 
 
 def _mentions_subject(text: str, ticker: str) -> bool:
-    """True if the text actually names the company or the ticker."""
+    """True if the text actually names the company or the ticker.
+
+    The ticker comparison is deliberately CASE-SENSITIVE. Real coverage writes
+    symbols in caps ("SHOP climbs 4%", "$AAPL"), while the same letters in
+    lowercase are usually just an English word. Matching case-insensitively
+    made ticker SHOP (Shopify) pull in an article about a dosa shop owner, and
+    COIN (Coinbase) pull in a Zcash story. Tickers that collide with common
+    words - SHOP, ALL, ON, IT, CAR, GO, KEY, NOW - all had this problem.
+    """
     company = _company(ticker)
     # Only substring-match a real company name. For an unmapped ticker
     # _company() echoes the symbol back, and substring-matching that would
     # make "V" match "Vodafone".
     if company.upper() != ticker.upper() and company.lower() in text.lower():
         return True
-    # Word-boundary check so "V" (Visa) does not match every capital V.
-    return any(w.strip(".,:;!?()[]'\"").upper() == ticker.upper()
-               for w in text.split())
+    symbol = ticker.upper()
+    # Strip $ too, so the "$AAPL" cashtag convention still matches.
+    return any(w.strip(".,:;!?()[]'\"$") == symbol for w in text.split())
 
 
 def _words(text: str) -> set[str]:

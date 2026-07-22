@@ -86,6 +86,97 @@ def test_single_letter_ticker_does_not_match_random_words():
     assert _mentions_subject("V climbs after earnings", "V")
 
 
+# ---------- common-word tickers (regression) ----------
+
+def test_lowercase_common_word_is_not_a_ticker_mention():
+    """
+    Regression, from a real live result. Ticker SHOP is Shopify, but matching
+    case-insensitively made the ordinary word "shop" qualify, and the
+    collector returned an article about an Indian restaurant.
+    """
+    dosa = "Thane dosa shop owner reveals why Rs 13 lakh monthly revenue now leaves little"
+    assert not _mentions_subject(dosa, "SHOP")
+
+
+def test_uppercase_symbol_still_matches():
+    assert _mentions_subject("SHOP climbs 4% after earnings", "SHOP")
+
+
+def test_cashtag_form_matches():
+    """$AAPL is the common convention on social sources."""
+    assert _mentions_subject("Loading up on $AAPL before earnings", "AAPL")
+
+
+@pytest.mark.parametrize("word_ticker,innocent", [
+    ("COIN", "Rare coin collection sells at auction"),
+    ("ALL", "All eyes on the Fed this week"),
+    ("ON", "Traders piled on after the open"),
+    ("IT", "It was a volatile session for tech"),
+    ("CAR", "Used car prices slipped again"),
+    ("GO", "Investors go defensive ahead of data"),
+])
+def test_tickers_that_collide_with_english_words(word_ticker, innocent):
+    """These all false-positived before the case-sensitive fix."""
+    assert not _mentions_subject(innocent, word_ticker)
+
+
+def test_company_name_match_stays_case_insensitive():
+    """Only the SYMBOL check is case-sensitive; prose capitalizes freely."""
+    assert _mentions_subject("shopify beats revenue estimates", "SHOP")
+    assert _mentions_subject("Shopify beats revenue estimates", "SHOP")
+
+
+def test_common_word_ticker_survives_the_full_filter():
+    """End to end: the dosa article is dropped, the Shopify one is kept."""
+    items = [
+        art("Thane dosa shop owner reveals monthly revenue struggles"),
+        art("Shopify shares jump on strong quarterly earnings"),
+    ]
+    kept = _filter_articles(items, "SHOP", 10)
+    assert [i.title for i in kept] == ["Shopify shares jump on strong quarterly earnings"]
+
+
+# ---------- company map coverage ----------
+
+def test_retail_popular_tickers_are_mapped():
+    """
+    Unmapped tickers search the bare symbol and starve: PLTR pulled 15
+    candidates where AAPL pulled 99, and RIVN fell under the 5-item
+    thin-evidence threshold.
+    """
+    for ticker, name in [("PLTR", "Palantir"), ("RIVN", "Rivian"),
+                         ("COIN", "Coinbase"), ("SHOP", "Shopify"),
+                         ("HOOD", "Robinhood"), ("GME", "GameStop")]:
+        assert _company(ticker) == name
+
+
+def test_mapped_ticker_query_includes_the_company_name():
+    assert "Palantir" in _query("PLTR")
+
+
+def test_distinctive_symbol_stays_in_the_query():
+    """AAPL is safe to search and adds recall, so it is kept."""
+    q = _query("AAPL")
+    assert "Apple" in q and "AAPL" in q
+
+
+def test_ambiguous_symbol_is_left_out_of_the_query():
+    """
+    Regression: ("Shopify" OR SHOP) returned 98 shopping and travel articles,
+    none of which mentioned Shopify. The symbol floods the candidate pool
+    before our filter ever sees it, so it must not go in the query.
+    """
+    q = _query("SHOP")
+    assert "Shopify" in q
+    assert "SHOP" not in q.replace("Shopify", "")
+
+
+def test_ambiguous_symbols_are_all_excluded():
+    for t in ("COIN", "CAT", "NET", "ARM", "LINK"):
+        stripped = _query(t).replace(_company(t), "")
+        assert t not in stripped
+
+
 # ---------- dedup ----------
 
 def test_normalized_titles_collapse_punctuation_and_case():
