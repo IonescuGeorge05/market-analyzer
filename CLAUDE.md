@@ -116,21 +116,28 @@ Known open issues:
   actually fires: AAPL and NVDA were both Bullish on the same run, but AAPL
   scored 74% confidence (price up, agrees) against NVDA's 56% (price down,
   contradicts). That branch was dead code while `trend` was always "unknown".
-- **Reddit returns 403 on every endpoint and it is not fixable in code.**
-  Exhausted: the app-only grant returns a token (200), the script-app
-  password grant also returns a token (200, JWT sub=user, so the account
-  really does authenticate), and yet every data endpoint answers 403 with an
-  HTML block page instead of JSON - including `/api/v1/me`, the simplest
-  authenticated call there is. HTML rather than a JSON error means Reddit is
-  refusing at the edge before the API sees the request.
-  The remaining explanation is the "You must also register to use the API"
-  step on reddit.com/prefs/apps, which was never completed. Do not spend more
-  time on the OAuth flow; the credentials are fine.
-  `REDDIT_USERNAME`/`REDDIT_PASSWORD` support is in `config.py` and the
-  collector because the password grant is the correct flow for a script app,
-  but the password field is intentionally left blank: it is a full-account
-  credential, not a scoped key, and it bought nothing here.
-  The pipeline degrades as designed - warning appended, news still analyzed.
+- **Reddit 403s because the IP is blocked by Reddit network security.**
+  The 403 body is an HTML page whose visible text reads "You've been blocked
+  by network security. If you think you've been blocked by mistake, file a
+  ticket below." Headers show `server: snooserv`, so it is Reddit's own edge,
+  not Cloudflare.
+  Nothing is wrong with the app or the credentials. Both OAuth grants return
+  valid tokens (the password grant's JWT carries sub=user), the app shows
+  under "authorized applications" with Read Content granted, and yet even
+  `/api/v1/me` is refused. The block sits in front of the API.
+  It also explains the captcha looping on reddit.com/prefs/apps - the same
+  network block hits the web UI.
+  Likely triggered by burst traffic while the collector and social filter
+  were being tested. Remedies are to file the ticket Reddit links from that
+  page, or wait for it to lapse. Earlier theories in this file - stale
+  credentials, wrong OAuth grant, unfinished API registration - are all
+  disproved; do not re-investigate them.
+  `REDDIT_PASSWORD` is intentionally blank: the password grant is the correct
+  flow for a script app and the code path stays, but it is a full-account
+  credential and it changed nothing here.
+  Throughout, the pipeline degraded exactly as designed - warning appended,
+  news still analyzed, signal still produced. An unplanned real outage that
+  design rule 3 handled without a crash.
 - Reddit volume is low after filtering, and that is deliberate. PRAW's search
   returns loosely-related posts, so `_filter_social()` requires the ticker in
   the POST TITLE. A TSLA run kept 0 of 3 and still returned 15 news items.
