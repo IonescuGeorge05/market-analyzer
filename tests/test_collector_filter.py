@@ -216,7 +216,30 @@ def test_deduplicates_republished_headlines():
 
 
 def test_respects_the_limit():
-    items = [art(f"Apple stock update {n}") for n in range(50)]
+    """
+    Headlines must be genuinely distinct, sharing only "Apple". Anything more
+    formulaic now collapses as near-duplicates, which is the correct
+    behaviour - see tests/test_near_duplicates.py.
+    """
+    headlines = [
+        "Apple earnings beat Wall Street estimates",
+        "Apple revenue climbed across services",
+        "Apple dividend raised six percent",
+        "Apple buyback expanded by billions",
+        "Apple guidance disappointed many analysts",
+        "Apple valuation questioned amid rally",
+        "Apple shares slipped in premarket",
+        "Apple profits fell on tariffs",
+        "Apple investors await Tim Cook",
+        "Apple quarterly shipments hit records",
+        "Apple stock downgraded citing saturation",
+        "Apple equity stake sold quietly",
+        "Apple yield remains below peers",
+        "Apple nasdaq listing anniversary noted",
+        "Apple trading volume spiked overnight",
+        "Apple shareholders approved the merger",
+    ]
+    items = [art(h) for h in headlines]
     assert len(_filter_articles(items, "AAPL", 15)) == 15
 
 

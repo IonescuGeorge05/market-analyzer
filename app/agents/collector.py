@@ -148,12 +148,65 @@ def _is_junk(url: str) -> bool:
 
 
 def _norm_title(title: str) -> str:
-    """Normalized form for dedup.
+    """Normalized form for exact dedup.
 
     Aggregators republish the same headline verbatim, so a single AAPL fetch
     returned the Synopsys story twice under two different sources.
     """
     return "".join(c for c in title.lower() if c.isalnum() or c.isspace()).strip()
+
+
+# Words that carry no topic. Dropped before comparing headlines so that two
+# stories are judged on their nouns, not on how many "the"s they share.
+_TITLE_STOP = {
+    "a", "an", "the", "to", "of", "for", "and", "or", "in", "on", "at", "is",
+    "are", "was", "were", "with", "by", "as", "its", "it", "this", "that",
+    "from", "after", "before", "what", "how", "why", "will", "be", "been",
+    "has", "have", "had", "who", "you", "your", "could", "would", "may",
+    "says", "say", "said", "report", "reports", "new", "than", "into", "out",
+}
+
+# Jaccard above this means "the same story, reworded". Tuned on a live AAPL
+# result where five outlets carried one leasing announcement: real duplicate
+# pairs scored 0.38 to 1.00 while the closest unrelated pair scored 0.23, so
+# 0.35 sits in the gap. The overlap coefficient was tried first and rejected:
+# unrelated headlines reached 0.60 with it, overlapping the duplicate range.
+NEAR_DUP_THRESHOLD = 0.35
+
+
+def _title_tokens(title: str) -> set[str]:
+    """Content words of a headline, lowercased, stopwords and noise removed."""
+    cleaned = "".join(c if c.isalnum() or c.isspace() else " " for c in title.lower())
+    return {w for w in cleaned.split() if len(w) > 2 and w not in _TITLE_STOP}
+
+
+def _similarity(a: str, b: str) -> float:
+    """Jaccard overlap of two headlines' content words, 0.0 to 1.0."""
+    ta, tb = _title_tokens(a), _title_tokens(b)
+    if not ta or not tb:
+        return 0.0
+    return len(ta & tb) / len(ta | tb)
+
+
+def _drop_near_duplicates(items: list[ContentItem]) -> list[ContentItem]:
+    """Collapse retellings of one story, keeping the first of each cluster.
+
+    Exact-title dedup is not enough. One Apple leasing announcement arrived
+    from five outlets under five different headlines, each scored +0.60, and
+    all five counted toward the weighted average - inflating it by roughly
+    18% off a single news event. The aggregate is supposed to reflect how
+    many independent things are happening, not how many outlets rewrote the
+    same wire copy.
+
+    Callers must sort by relevance first: this keeps the earliest member of
+    each cluster, so the best-ranked retelling is the one that survives.
+    """
+    kept: list[ContentItem] = []
+    for it in items:
+        if any(_similarity(it.title, k.title) >= NEAR_DUP_THRESHOLD for k in kept):
+            continue
+        kept.append(it)
+    return kept
 
 
 def _mentions_subject(text: str, ticker: str) -> bool:
@@ -234,8 +287,11 @@ def _filter_articles(items: list[ContentItem], ticker: str,
         seen.add(key)
         kept.append(it)
 
+    # Rank first, then collapse retellings, so the best-worded version of a
+    # story is the one kept. Limit last, so dropped duplicates free up slots
+    # for genuinely different stories rather than shrinking the result.
     kept.sort(key=lambda i: _relevance(i, ticker), reverse=True)
-    return kept[:limit]
+    return _drop_near_duplicates(kept)[:limit]
 
 
 def _filter_social(items: list[ContentItem], ticker: str,

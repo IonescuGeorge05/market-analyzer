@@ -12,6 +12,7 @@ pipeline still returns something usable.
 """
 import json
 import logging
+import re
 
 from langchain_core.messages import HumanMessage, SystemMessage
 
@@ -38,7 +39,8 @@ Rules:
 
 Return ONLY a JSON array, no prose, no markdown fences:
 [{"i": 1, "score": 0.6, "reasoning": "earnings beat expectations"}, ...]
-Include every item you were given, in order."""
+Include every item you were given, in order.
+Write positive scores as 0.6, never as +0.6 - a leading + is not valid JSON."""
 
 
 def _llm():
@@ -67,6 +69,37 @@ def _vader_scores(items) -> list[tuple[float, str]]:
     return out
 
 
+def _extract_json_array(raw: str) -> list:
+    """Pull the JSON array out of a model response.
+
+    The prompt asks for bare JSON and usually gets it, but not always: a
+    response occasionally arrives fenced, or with a sentence of preamble, and
+    a bare json.loads then fails on the whole batch. Slicing from the first
+    "[" to the last "]" survives all three shapes and costs nothing when the
+    response was already clean.
+    """
+    text = raw.strip()
+    if text.startswith("```"):
+        # ```json\n[...]\n``` -> take the fenced body, whatever the label
+        parts = text.split("```")
+        text = parts[1] if len(parts) > 1 else text
+        text = text.removeprefix("json").removeprefix("JSON").strip()
+
+    start, end = text.find("["), text.rfind("]")
+    if start == -1 or end == -1 or end < start:
+        raise ValueError(f"no JSON array in model response: {raw[:120]!r}")
+    body = text[start:end + 1]
+
+    # Strip a leading + from numbers. The model writes "score": +1.0 for
+    # emphatically bullish items, which is not legal JSON - the spec allows a
+    # leading minus and nothing else. This was an intermittent failure that
+    # only bit when a batch happened to contain a strongly positive score,
+    # and it silently cost eight real scores each time it did.
+    body = re.sub(r'([:\[,]\s*)\+(\d)', r'\1\2', body)
+
+    return json.loads(body)
+
+
 async def _score_batch(llm, batch) -> list[tuple[float, str]]:
     listing = "\n".join(
         f"{n}. [{it.kind}] {it.title} :: {it.text[:300]}"
@@ -76,10 +109,7 @@ async def _score_batch(llm, batch) -> list[tuple[float, str]]:
         SystemMessage(content=SYSTEM_PROMPT),
         HumanMessage(content=listing),
     ])
-    raw = resp.content.strip()
-    if raw.startswith("```"):
-        raw = raw.split("```")[1].removeprefix("json").strip()
-    parsed = json.loads(raw)
+    parsed = _extract_json_array(resp.content)
 
     by_index = {int(o["i"]): o for o in parsed}
     out = []
@@ -102,26 +132,44 @@ async def run(data: CollectedData) -> SentimentAnalysis:
             warnings=warnings + ["nothing to analyze"],
         )
 
+    # Fall back per batch, not for the whole run. One malformed response used
+    # to drop every item to VADER, so a single bad batch of 8 discarded good
+    # LLM scores for everything else. ScoredItem.scorer is per item, so a
+    # partial fallback is visible in the response rather than hidden.
     results: list[tuple[float, str]] = []
-    scorer = "llm"
+    scorers: list[str] = []
+    failures: list[str] = []
+
+    llm = None
     try:
         llm = _llm()
-        for i in range(0, len(items), BATCH_SIZE):
-            results += await _score_batch(llm, items[i:i + BATCH_SIZE])
     except Exception as e:
-        log.warning("LLM scoring failed, falling back to VADER: %s", e)
-        # Surface the provider's actual message, not just the exception class.
-        # "BadRequestError" alone hides why (bad model string? no credits?).
-        warnings.append(
-            f"LLM scoring failed ({type(e).__name__}: {reason(e)}) - used VADER"
-        )
-        results = _vader_scores(items)
-        scorer = "vader"
+        log.warning("could not build LLM client: %s", e)
+        failures.append(f"{type(e).__name__}: {reason(e)}")
+
+    for i in range(0, len(items), BATCH_SIZE):
+        batch = items[i:i + BATCH_SIZE]
+        if llm is not None:
+            try:
+                results += await _score_batch(llm, batch)
+                scorers += ["llm"] * len(batch)
+                continue
+            except Exception as e:
+                log.warning("LLM scoring failed on batch %d, using VADER: %s",
+                            i // BATCH_SIZE + 1, e)
+                failures.append(f"{type(e).__name__}: {reason(e)}")
+        results += _vader_scores(batch)
+        scorers += ["vader"] * len(batch)
+
+    if failures:
+        # One warning per distinct cause, not one per batch.
+        for cause in dict.fromkeys(failures):
+            warnings.append(f"LLM scoring failed ({cause}) - used VADER")
 
     scored = [
         ScoredItem(source=it.source, kind=it.kind, title=it.title,
-                   score=sc, reasoning=why, weight=_weight(it), scorer=scorer)
-        for it, (sc, why) in zip(items, results)
+                   score=sc, reasoning=why, weight=_weight(it), scorer=sc_name)
+        for it, (sc, why), sc_name in zip(items, results, scorers)
     ]
 
     total_w = sum(s.weight for s in scored) or 1.0
