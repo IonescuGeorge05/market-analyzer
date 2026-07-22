@@ -437,11 +437,18 @@ def _fetch_reddit_sync(ticker: str) -> tuple[list[ContentItem], list[str]]:
         return [], ["REDDIT credentials missing - skipped reddit"]
     try:
         import praw
-        reddit = praw.Reddit(
+        creds = dict(
             client_id=settings.reddit_client_id,
             client_secret=settings.reddit_client_secret,
             user_agent=settings.reddit_user_agent,
         )
+        # A "script" app is meant to authenticate as its developer account.
+        # With only id+secret PRAW uses the app-only grant, and Reddit answers
+        # data endpoints with 403 and an HTML block page rather than JSON.
+        if settings.reddit_username and settings.reddit_password:
+            creds["username"] = settings.reddit_username
+            creds["password"] = settings.reddit_password
+        reddit = praw.Reddit(**creds)
         sub = reddit.subreddit(settings.subreddits)
         items = []
         for post in sub.search(ticker, sort="new", time_filter="week",

@@ -11,6 +11,12 @@ class Settings(BaseSettings):
     alphavantage_key: str = ""
     reddit_client_id: str = ""
     reddit_client_secret: str = ""
+    # A Reddit app of type "script" authenticates with the developer account's
+    # own username and password (the OAuth "password grant"). Without these,
+    # PRAW falls back to app-only mode, which Reddit answers with 403 and an
+    # HTML block page on data endpoints. Leave blank to stay app-only.
+    reddit_username: str = ""
+    reddit_password: str = ""
     reddit_user_agent: str = "market-sentiment-analyzer/0.1"
 
     # Tunables
