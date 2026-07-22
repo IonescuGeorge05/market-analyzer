@@ -47,8 +47,9 @@ Orchestration is `app/pipeline.py` — three sequential awaits, nothing clever.
 
 ## Stack
 
-Python 3.11+, FastAPI, LangChain (`langchain-anthropic`), Claude as the LLM,
-Pydantic v2 schemas. React + Recharts planned for the dashboard, not built yet.
+Python 3.11+, FastAPI, LangChain, Pydantic v2 schemas. The LLM is swappable
+between Claude and OpenAI via `LLM_PROVIDER` in `.env`; see `app/llm.py`.
+React + Recharts planned for the dashboard, not built yet.
 
 ## Endpoints
 
@@ -81,7 +82,14 @@ Working:
   (A stray empty `.git` in the home directory used to swallow it.)
 
 Known open issues:
-- **LLM scoring is blocked on an empty API credit balance, NOT a code bug.**
+- **Currently running on OpenAI (`gpt-4o-mini`), not Claude.** The provider is
+  a `.env` setting now — `LLM_PROVIDER=anthropic|openai`, resolved in
+  `app/llm.py`. Agents never import a provider directly and a test enforces
+  that. Switch back with one line once Anthropic credits are bought; nothing
+  else changes, because the signal is computed in code either way.
+- ~~LLM scoring is blocked on an empty Anthropic credit balance~~ — still true
+  of the Anthropic key, worked around by switching providers. Kept below
+  because the diagnosis cost real time and should not be re-run:
   RESOLVED as a diagnosis, not yet as a state. The earlier "stale model string"
   theory was wrong and is disproved: `claude-haiku-4-5-20251001` in
   `app/config.py` is valid and current, the key loads, the payload is fine.
@@ -92,9 +100,13 @@ Known open issues:
   Fix is to buy credits at console.anthropic.com (API credits are a separate
   wallet from a Claude subscription; ~half a cent per `/analyze` run on Haiku).
   Do not go looking for this in the code again.
-- VADER scores are poor (it scored a "Poor Stock Performance" headline at +0.93).
-  It is a fallback only and must never be the normal path. Until credits are
-  added, `scorer` in the response will read `vader` and that is expected.
+- VADER is a fallback only and must never be the normal path. `scorer` should
+  read `llm`; if it reads `vader`, check `warnings` for the provider's real
+  message. Measured against the LLM on identical headlines:
+  "Stumbling Stock Rally" llm 0.00 / vader +0.78, "Alphabet vs Apple: The
+  Better Buy" llm 0.00 / vader +0.87, "Bank of America doubles down on Apple"
+  llm +0.60 / vader 0.00. VADER reads "Rally" and calls a stumbling market
+  bullish, and misses analyst upgrades that carry no emotional words.
 - ~~Alpha Vantage and Reddit keys not yet added~~ — both added and working.
   `price` populates, and the price-confirmation branch in `_signal()` now
   actually fires: AAPL and NVDA were both Bullish on the same run, but AAPL
@@ -121,7 +133,8 @@ Known open issues:
    The Bullish/Bearish validation-set idea is still worth revisiting if
    official access is ever obtained.
 6. ~~Unit tests for `_signal()` and `_weight()`~~ — DONE, 38 tests in `tests/`
-7. React dashboard last
+7. React dashboard last — THE ONLY ITEM LEFT. Backend is done and CORS is
+   already configured in `main.py` for localhost:3000 and 5173.
 
 Items 2-5 need no Anthropic credits, so they are the ones to pick up while
 billing is pending. 5 is the best of them: StockTwits' self-labelled
