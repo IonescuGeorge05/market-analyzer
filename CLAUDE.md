@@ -72,8 +72,8 @@ Working:
   outside the megacaps: SHOP kept 0 articles and RIVN 5 before it, 8 and 9
   after. All news sources are filtered as one pool so dedup catches the same
   story arriving from both under different publisher names.
-- 92 unit tests in `tests/` covering `_signal()`, `_weight()`, the relevance
-  filter and the RSS parser. Pure functions, so they need no keys and no
+- 111 unit tests in `tests/` covering `_signal()`, `_weight()`, the news and
+  social relevance filters, the RSS parser and the provider switch. Pure functions, so they need no keys and no
   network: `pytest -q`
 - `app/errors.py` -> `reason(e)` extracts the provider's real message into the
   `warnings` array. It lives outside `app/agents/` because both the Analyzer and
@@ -120,9 +120,12 @@ Known open issues:
 ## Roadmap
 
 1. ~~Fix the LLM BadRequestError~~ — diagnosed: buy API credits, no code fix
-2. Verify relevance filtering actually improved article quality
-3. Add Alpha Vantage key -> price context populated
-4. Add Reddit credentials -> social source live
+2. ~~Verify relevance filtering~~ — it did not exist; built and measured.
+   AAPL went from ~6 of 15 relevant to 15 of 15 kept from a 118-article pool.
+3. ~~Add Alpha Vantage key~~ — DONE, `price` populates and the trend branch
+   in `_signal()` fires for the first time.
+4. ~~Add Reddit credentials~~ — DONE, plus `_filter_social()`, because PRAW
+   search returned 0 of 3 relevant posts on TSLA.
 5. ~~Add StockTwits as a second social source~~ — BLOCKED, and not by our code.
    `api.stocktwits.com` sits behind a Cloudflare bot challenge and returns 403
    with a "Just a moment..." HTML page to any non-browser client, regardless of
@@ -132,13 +135,13 @@ Known open issues:
    different source. Yahoo Finance RSS was added instead — see Working.
    The Bullish/Bearish validation-set idea is still worth revisiting if
    official access is ever obtained.
-6. ~~Unit tests for `_signal()` and `_weight()`~~ — DONE, 38 tests in `tests/`
+6. ~~Unit tests for `_signal()` and `_weight()`~~ — DONE, 111 tests in `tests/`
 7. React dashboard last — THE ONLY ITEM LEFT. Backend is done and CORS is
    already configured in `main.py` for localhost:3000 and 5173.
 
-Items 2-5 need no Anthropic credits, so they are the ones to pick up while
-billing is pending. 5 is the best of them: StockTwits' self-labelled
-Bullish/Bearish tags become a validation set for our LLM scores once 1 clears.
+Everything except the dashboard is done. The pipeline runs end to end with
+no warnings on gpt-4o-mini: `GET /analyze/AAPL` returns BUY 79%, `scorer`
+reads `llm`, and all four sources report.
 
 ## Working preferences
 
