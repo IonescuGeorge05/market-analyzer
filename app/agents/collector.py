@@ -238,6 +238,44 @@ def _filter_articles(items: list[ContentItem], ticker: str,
     return kept[:limit]
 
 
+def _filter_social(items: list[ContentItem], ticker: str,
+                   limit: int) -> list[ContentItem]:
+    """Relevance filter for social posts. Deliberately lighter than the news one.
+
+    Social posts cannot use _filter_articles: reddit.com is in JUNK_DOMAINS
+    (it belongs there, to keep Reddit links out of NEWS results), and the
+    market-signal rule would throw away posts like "AAPL 7/16 Puts 0dte" that
+    carry real sentiment without a single formal finance word.
+
+    What social does need is the subject check. PRAW's search returns loosely
+    related posts: a TSLA search returned a Goldman Sachs story, a weekly
+    earnings megathread and "How to find stocks that go up instead of down?",
+    none of which mention Tesla. Megathreads drop out naturally here, since a
+    thread titled "Daily Discussion" never names the ticker.
+
+    The subject must appear in the TITLE, which is stricter than the news
+    filter allows. Accepting body mentions let a 684-upvote Goldman Sachs
+    thread and "How to find stocks that go up instead of down?" through on a
+    TSLA search, because each named Tesla once somewhere in a long post. A
+    passing name-drop is not sentiment about the stock, and the news sources
+    already carry the volume.
+    """
+    kept: list[ContentItem] = []
+    seen: set[str] = set()
+    for it in items:
+        if not it.title or not _mentions_subject(it.title, ticker):
+            continue
+        key = _norm_title(it.title)
+        if not key or key in seen:
+            continue
+        seen.add(key)
+        kept.append(it)
+
+    # Upvotes order what survives, matching how _weight() values popularity.
+    kept.sort(key=lambda i: i.popularity, reverse=True)
+    return kept[:limit]
+
+
 async def _fetch_news(ticker: str) -> tuple[list[ContentItem], list[str]]:
     if not settings.newsapi_key:
         return [], ["NEWSAPI_KEY missing - skipped news"]
@@ -420,7 +458,11 @@ async def run(ticker: str) -> CollectedData:
     log.info("news: %d fetched (%d newsapi + %d yahoo) -> %d kept for %s",
              len(raw_news), len(news[0]), len(yahoo[0]), len(articles), ticker)
 
-    items = articles + reddit[0]
+    social = _filter_social(reddit[0], ticker, settings.reddit_limit)
+    log.info("social: %d fetched -> %d kept for %s",
+             len(reddit[0]), len(social), ticker)
+
+    items = articles + social
     warnings = news[1] + yahoo[1] + reddit[1] + price[1]
     if raw_news and not articles:
         warnings.append("all news articles filtered out as irrelevant")

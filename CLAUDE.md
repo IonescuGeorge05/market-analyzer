@@ -95,8 +95,15 @@ Known open issues:
 - VADER scores are poor (it scored a "Poor Stock Performance" headline at +0.93).
   It is a fallback only and must never be the normal path. Until credits are
   added, `scorer` in the response will read `vader` and that is expected.
-- Alpha Vantage and Reddit keys not yet added, so `price` is null and there is
-  no social data. Both are expected warnings right now, not bugs.
+- ~~Alpha Vantage and Reddit keys not yet added~~ — both added and working.
+  `price` populates, and the price-confirmation branch in `_signal()` now
+  actually fires: AAPL and NVDA were both Bullish on the same run, but AAPL
+  scored 74% confidence (price up, agrees) against NVDA's 56% (price down,
+  contradicts). That branch was dead code while `trend` was always "unknown".
+- Reddit volume is low after filtering, and that is deliberate. PRAW's search
+  returns loosely-related posts, so `_filter_social()` requires the ticker in
+  the POST TITLE. A TSLA run kept 0 of 3 and still returned 15 news items.
+  Prefer few relevant posts over many irrelevant ones; news carries volume.
 
 ## Roadmap
 
