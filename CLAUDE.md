@@ -24,7 +24,7 @@ It is NOT a real trading system and must never be presented as investment advice
 
 | Agent | File | LLM? | Job |
 |---|---|---|---|
-| Collector | `app/agents/collector.py` | no | NewsAPI + Reddit (PRAW) + Alpha Vantage, fetched concurrently, normalized, relevance-filtered |
+| Collector | `app/agents/collector.py` | no | NewsAPI + Yahoo Finance RSS + Reddit (PRAW) + Alpha Vantage, fetched concurrently, normalized, relevance-filtered |
 | Analyzer | `app/agents/analyzer.py` | yes | Scores each item -1..+1, weighted aggregate, VADER fallback |
 | Reporter | `app/agents/reporter.py` | yes | Writes the prose summary; signal computed in code |
 
@@ -66,8 +66,14 @@ Working:
 - NewsAPI integrated and returning articles
 - Collector recently hardened: company-name mapping (AAPL -> Apple), finance-word
   query, junk-domain blocklist, title-relevance filter, dedup, over-fetch-then-filter
-- 38 unit tests over `_signal()` and `_weight()` in `tests/`. Pure functions, so
-  they need no keys and no network: `pytest -q`
+- Yahoo Finance RSS as a second news source. No key, no quota, 20 headlines
+  for every ticker tried. It exists because NewsAPI's free tier is thin
+  outside the megacaps: SHOP kept 0 articles and RIVN 5 before it, 8 and 9
+  after. All news sources are filtered as one pool so dedup catches the same
+  story arriving from both under different publisher names.
+- 92 unit tests in `tests/` covering `_signal()`, `_weight()`, the relevance
+  filter and the RSS parser. Pure functions, so they need no keys and no
+  network: `pytest -q`
 - `app/errors.py` -> `reason(e)` extracts the provider's real message into the
   `warnings` array. It lives outside `app/agents/` because both the Analyzer and
   the Reporter use it and design rule 1 forbids cross-agent imports.
@@ -98,9 +104,15 @@ Known open issues:
 2. Verify relevance filtering actually improved article quality
 3. Add Alpha Vantage key -> price context populated
 4. Add Reddit credentials -> social source live
-5. Add StockTwits as a second social source (no auth needed, public endpoint,
-   ticker-tagged, and users self-label Bullish/Bearish — useful as a ground-truth
-   check against our own LLM scores)
+5. ~~Add StockTwits as a second social source~~ — BLOCKED, and not by our code.
+   `api.stocktwits.com` sits behind a Cloudflare bot challenge and returns 403
+   with a "Just a moment..." HTML page to any non-browser client, regardless of
+   User-Agent. The "no auth needed, public endpoint" note was out of date.
+   Getting past that would mean impersonating a browser to defeat bot
+   detection, so the legitimate routes are official API credentials or a
+   different source. Yahoo Finance RSS was added instead — see Working.
+   The Bullish/Bearish validation-set idea is still worth revisiting if
+   official access is ever obtained.
 6. ~~Unit tests for `_signal()` and `_weight()`~~ — DONE, 38 tests in `tests/`
 7. React dashboard last
 

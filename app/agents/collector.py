@@ -9,6 +9,7 @@ it records a warning and returns what it has.
 """
 import asyncio
 import logging
+import xml.etree.ElementTree as ET
 from datetime import datetime, timedelta
 
 import httpx
@@ -275,12 +276,65 @@ async def _fetch_news(ticker: str) -> tuple[list[ContentItem], list[str]]:
             published_at=a.get("publishedAt"),
         ))
 
-    items = _filter_articles(raw, ticker, settings.news_limit)
-    warnings = []
-    if raw and not items:
-        warnings.append("all news articles filtered out as irrelevant")
-    log.info("news: %d fetched -> %d kept for %s", len(raw), len(items), ticker)
-    return items, warnings
+    # Returned unfiltered on purpose: run() filters the combined pool from
+    # every news source at once, so dedup catches the same story arriving
+    # from NewsAPI and Yahoo under two different publisher names.
+    return raw, []
+
+
+# Yahoo returns 404 to a client with no User-Agent, so send a normal one.
+# This is not evasion - the feed is public and meant to be read by feed
+# readers, it just refuses obviously-empty requests.
+_UA = ("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
+       "(KHTML, like Gecko) Chrome/120.0 Safari/537.36")
+
+YAHOO_RSS = "https://feeds.finance.yahoo.com/rss/2.0/headline"
+
+
+async def _fetch_yahoo(ticker: str) -> tuple[list[ContentItem], list[str]]:
+    """Yahoo Finance's per-ticker RSS feed. No API key, no quota.
+
+    Exists because NewsAPI's free tier is thin for anything outside the
+    megacaps: SHOP kept 0 articles and RIVN only 5, both under the 5-item
+    threshold that costs confidence. Yahoo returns 20 headlines for every
+    ticker tried, including those two.
+
+    The feed is only loosely ticker-scoped - an AAPL request returned a
+    seed-funding story about an unrelated startup - so these go through
+    exactly the same relevance filter as NewsAPI results.
+    """
+    params = {"s": ticker.upper(), "region": "US", "lang": "en-US"}
+    try:
+        async with httpx.AsyncClient(timeout=20, follow_redirects=True) as client:
+            r = await client.get(YAHOO_RSS, params=params,
+                                 headers={"User-Agent": _UA})
+            r.raise_for_status()
+            return _parse_yahoo_rss(r.content), []
+    except Exception as e:
+        log.warning("yahoo fetch failed: %s", e)
+        return [], [f"yahoo finance unavailable: {e}"]
+
+
+def _parse_yahoo_rss(xml_bytes: bytes) -> list[ContentItem]:
+    """RSS 2.0 -> ContentItem. Split out from the fetch so it is testable.
+
+    Raises on malformed XML; the caller turns that into a warning.
+    """
+    root = ET.fromstring(xml_bytes)
+    items = []
+    for node in root.findall(".//item"):
+        title = (node.findtext("title") or "").strip()
+        if not title:
+            continue
+        items.append(ContentItem(
+            source="Yahoo Finance",
+            kind="news",
+            title=title,
+            text=(node.findtext("description") or "").strip()[:1000],
+            url=(node.findtext("link") or "").strip(),
+            published_at=(node.findtext("pubDate") or "").strip() or None,
+        ))
+    return items
 
 
 def _fetch_reddit_sync(ticker: str) -> tuple[list[ContentItem], list[str]]:
@@ -353,11 +407,23 @@ async def _fetch_price(ticker: str) -> tuple[PriceData, list[str]]:
 async def run(ticker: str) -> CollectedData:
     """Entry point for Agent 1."""
     ticker = ticker.strip().upper()
-    news, reddit, price = await asyncio.gather(
-        _fetch_news(ticker), _fetch_reddit(ticker), _fetch_price(ticker)
+    news, yahoo, reddit, price = await asyncio.gather(
+        _fetch_news(ticker), _fetch_yahoo(ticker),
+        _fetch_reddit(ticker), _fetch_price(ticker)
     )
-    items = news[0] + reddit[0]
-    warnings = news[1] + reddit[1] + price[1]
+
+    # Filter every news source together rather than per-source. The same
+    # story reaches us from NewsAPI and Yahoo under different publisher
+    # names, and dedup only catches that if it sees both at once.
+    raw_news = news[0] + yahoo[0]
+    articles = _filter_articles(raw_news, ticker, settings.news_limit)
+    log.info("news: %d fetched (%d newsapi + %d yahoo) -> %d kept for %s",
+             len(raw_news), len(news[0]), len(yahoo[0]), len(articles), ticker)
+
+    items = articles + reddit[0]
+    warnings = news[1] + yahoo[1] + reddit[1] + price[1]
+    if raw_news and not articles:
+        warnings.append("all news articles filtered out as irrelevant")
     if not items:
         warnings.append("no content collected - check API keys")
 
