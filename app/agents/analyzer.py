@@ -13,11 +13,10 @@ pipeline still returns something usable.
 import json
 import logging
 
-from langchain_anthropic import ChatAnthropic
 from langchain_core.messages import HumanMessage, SystemMessage
 
-from app.config import settings
 from app.errors import reason
+from app.llm import chat
 from app.schemas import CollectedData, ScoredItem, SentimentAnalysis
 
 log = logging.getLogger(__name__)
@@ -43,12 +42,8 @@ Include every item you were given, in order."""
 
 
 def _llm():
-    return ChatAnthropic(
-        model=settings.llm_model,
-        api_key=settings.anthropic_api_key,
-        temperature=0,
-        max_tokens=2000,
-    )
+    """Temperature 0: scoring must be as reproducible as the provider allows."""
+    return chat(temperature=0, max_tokens=2000)
 
 
 def _weight(item) -> float:

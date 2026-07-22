@@ -7,6 +7,9 @@ httpx==0.28.1
 praw==7.8.1
 vaderSentiment==3.3.2
 langchain==0.3.14
+langchain-core==1.5.0
+# Both providers are installed so LLM_PROVIDER can be switched in .env
+# without a reinstall. See app/llm.py.
 langchain-anthropic==0.3.1
-langchain-core==0.3.29
+langchain-openai==1.4.0
 pytest==9.1.1

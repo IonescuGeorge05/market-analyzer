@@ -10,11 +10,10 @@ the same numbers always give the same signal, which you can test and defend.
 import json
 import logging
 
-from langchain_anthropic import ChatAnthropic
 from langchain_core.messages import HumanMessage, SystemMessage
 
-from app.config import settings
 from app.errors import reason
+from app.llm import chat
 from app.schemas import Report, SentimentAnalysis
 
 log = logging.getLogger(__name__)
@@ -104,9 +103,8 @@ async def run(a: SentimentAnalysis) -> Report:
 
     summary, drivers, risks = "", [], []
     try:
-        llm = ChatAnthropic(model=settings.llm_model,
-                            api_key=settings.anthropic_api_key,
-                            temperature=0.3, max_tokens=1200)
+        # Slight temperature here: this is prose, not scoring.
+        llm = chat(temperature=0.3, max_tokens=1200)
         resp = await llm.ainvoke([
             SystemMessage(content=SYSTEM_PROMPT),
             HumanMessage(content=json.dumps(payload, indent=2)),
