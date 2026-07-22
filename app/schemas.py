@@ -78,3 +78,11 @@ class Report(BaseModel):
     markdown: str = ""
     generated_at: datetime = Field(default_factory=datetime.utcnow)
     warnings: list[str] = []
+
+    # Carried through from SentimentAnalysis so one /analyze call is enough to
+    # render the dashboard. Without these the frontend would have to call
+    # /debug/analyze as well, paying for the LLM scoring twice to show the
+    # evidence behind a signal it was already given.
+    price: PriceData = PriceData()
+    scored_items: list[ScoredItem] = []
+    item_count: int = 0

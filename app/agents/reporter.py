@@ -132,4 +132,5 @@ async def run(a: SentimentAnalysis) -> Report:
         summary=summary, key_drivers=drivers, risk_factors=risks,
         markdown=_markdown(a, signal, conf, summary, drivers, risks),
         warnings=warnings,
+        price=a.price, scored_items=a.scored_items, item_count=a.item_count,
     )

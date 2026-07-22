@@ -49,7 +49,11 @@ Orchestration is `app/pipeline.py` — three sequential awaits, nothing clever.
 
 Python 3.11+, FastAPI, LangChain, Pydantic v2 schemas. The LLM is swappable
 between Claude and OpenAI via `LLM_PROVIDER` in `.env`; see `app/llm.py`.
-React + Recharts planned for the dashboard, not built yet.
+Frontend is React + Vite + Recharts in `frontend/`.
+
+Run both:
+    uvicorn app.main:app --reload     # :8000
+    cd frontend && npm run dev        # :5173
 
 ## Endpoints
 
@@ -136,12 +140,18 @@ Known open issues:
    The Bullish/Bearish validation-set idea is still worth revisiting if
    official access is ever obtained.
 6. ~~Unit tests for `_signal()` and `_weight()`~~ — DONE, 111 tests in `tests/`
-7. React dashboard last — THE ONLY ITEM LEFT. Backend is done and CORS is
-   already configured in `main.py` for localhost:3000 and 5173.
+7. ~~React dashboard~~ — DONE. `frontend/`, Vite + Recharts. Signal card with
+   confidence meter, price card, a diverging bar chart of every item score
+   with the model's reasoning on hover, and the full source list.
 
-Everything except the dashboard is done. The pipeline runs end to end with
-no warnings on gpt-4o-mini: `GET /analyze/AAPL` returns BUY 79%, `scorer`
-reads `llm`, and all four sources report.
+All seven items are done. The pipeline runs end to end with no warnings on
+gpt-4o-mini and the dashboard renders it: `GET /analyze/AAPL` returns BUY at
+77%, `scorer` reads `llm`, and all four sources report.
+
+Next things worth doing, none of them blocking:
+- No caching. Every request refetches everything and re-scores it.
+- Alpha Vantage free tier is 25 requests/day, so a live demo can exhaust it.
+- Switch back to Claude with `LLM_PROVIDER=anthropic` once credits are bought.
 
 ## Working preferences
 
