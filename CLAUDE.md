@@ -116,6 +116,14 @@ Known open issues:
   actually fires: AAPL and NVDA were both Bullish on the same run, but AAPL
   scored 74% confidence (price up, agrees) against NVDA's 56% (price down,
   contradicts). That branch was dead code while `trend` was always "unknown".
+- **Reddit currently returns 403 on every endpoint.** Not a code bug and not
+  the credentials: the app-only OAuth token request returns 200, but the
+  follow-up data request returns 403 with an HTML block page instead of JSON,
+  which means Reddit is refusing at the edge rather than erroring in the API.
+  It worked earlier in the same session, so it is either rate limiting from
+  test traffic or the "You must also register to use the API" step on
+  reddit.com/prefs/apps that was never completed. The pipeline degrades
+  correctly: warning appended, news still analyzed, signal still produced.
 - Reddit volume is low after filtering, and that is deliberate. PRAW's search
   returns loosely-related posts, so `_filter_social()` requires the ticker in
   the POST TITLE. A TSLA run kept 0 of 3 and still returned 15 news items.

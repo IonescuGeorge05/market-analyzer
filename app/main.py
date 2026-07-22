@@ -13,9 +13,14 @@ logging.basicConfig(level=logging.INFO,
 
 app = FastAPI(title="Market Sentiment Analyzer", version="0.1.0")
 
+# Any localhost port, not a fixed list. Vite silently moves to 5174 when 5173
+# is taken, and a hardcoded allowlist then makes the browser discard a
+# perfectly good 200 response - the server logs success while the UI shows
+# "Failed to fetch", which is a genuinely confusing way to lose an afternoon.
+# This is a dev convenience; a deployed frontend would get an explicit origin.
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "http://localhost:5173"],
+    allow_origin_regex=r"http://(localhost|127\.0\.0\.1):\d+",
     allow_methods=["*"], allow_headers=["*"],
 )
 
