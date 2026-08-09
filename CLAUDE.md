@@ -24,11 +24,18 @@ It is NOT a real trading system and must never be presented as investment advice
 
 | Agent | File | LLM? | Job |
 |---|---|---|---|
-| Collector | `app/agents/collector.py` | no | NewsAPI + Yahoo Finance RSS + Reddit (PRAW) + Alpha Vantage, fetched concurrently, normalized, relevance-filtered |
+| Collector | `app/agents/collector.py` | no | NewsAPI + Yahoo Finance RSS + Reddit (PRAW) + yfinance price, fetched concurrently, normalized, relevance-filtered |
 | Analyzer | `app/agents/analyzer.py` | yes | Scores each item -1..+1, weighted aggregate, VADER fallback |
 | Reporter | `app/agents/reporter.py` | yes | Writes the prose summary; signal computed in code |
 
-Orchestration is `app/pipeline.py` — three sequential awaits, nothing clever.
+Orchestration is `app/pipeline.py` — three sequential awaits, then a write to
+the run store, nothing clever.
+
+Two modules sit outside `app/agents/` because more than one agent (or the API)
+needs them, and design rule 1 forbids cross-agent imports:
+
+- `app/store.py` — every run is recorded to SQLite at decision time
+- `app/evaluate.py` — scores those recorded signals against forward returns
 
 ## Non-negotiable design rules
 
@@ -61,6 +68,9 @@ Run both:
 - `GET /debug/collect/{ticker}` — Agent 1 only
 - `GET /debug/analyze/{ticker}` — Agents 1+2
 - `GET /health`
+- `GET /history?ticker=&limit=` — past runs, newest first
+- `GET /history/stats` — how much has been recorded
+- `GET /history/evaluate?ticker=&horizon=&llm_only=` — forward-return scoring
 
 The debug endpoints exist so each agent can be verified in isolation. Keep them.
 
@@ -76,9 +86,29 @@ Working:
   outside the megacaps: SHOP kept 0 articles and RIVN 5 before it, 8 and 9
   after. All news sources are filtered as one pool so dedup catches the same
   story arriving from both under different publisher names.
-- 111 unit tests in `tests/` covering `_signal()`, `_weight()`, the news and
-  social relevance filters, the RSS parser and the provider switch. Pure functions, so they need no keys and no
+- 209 unit tests in `tests/` covering `_signal()`, `_weight()`, the news and
+  social relevance filters, the RSS parser, the provider switch, price math,
+  the run store and the evaluator. Pure functions, so they need no keys and no
   network: `pytest -q`
+- **Price comes from yfinance**, not Alpha Vantage. No key, no quota, and it
+  returns years of daily bars, which is what makes forward-return evaluation
+  possible at all. Alpha Vantage is kept only as a fallback for when yfinance
+  returns empty. `_price_from_closes()` is the pure core shared by both.
+- **`app/store.py` records every run** to `data/runs.db` (SQLite, stdlib): the
+  UTC decision timestamp, signal, confidence, score, item count, scorer label,
+  and the price at the moment of the signal. That price is written now rather
+  than looked up later, because a later lookup returns a revised or
+  split-adjusted number that was never observable at decision time.
+  `save()` never raises — design rule 3 covers bookkeeping too.
+- **`app/evaluate.py` scores those signals against forward returns.** Entry is
+  the first close STRICTLY AFTER the decision date; exit is N sessions later;
+  both come from one request per ticker so they share an adjustment basis.
+  HOLD is excluded from the hit rate (it makes no directional claim), VADER
+  runs are excluded by default (they measure the fallback, not the model), and
+  below 30 directional runs the output is flagged `conclusive: false` with the
+  caveats returned in the same object as the numbers.
+  Validated end to end against real June 2026 prices; entry/exit dates and
+  returns line up. See "What the evaluation is worth" below.
 - `app/errors.py` -> `reason(e)` extracts the provider's real message into the
   `warnings` array. It lives outside `app/agents/` because both the Analyzer and
   the Reporter use it and design rule 1 forbids cross-agent imports.
@@ -116,28 +146,32 @@ Known open issues:
   actually fires: AAPL and NVDA were both Bullish on the same run, but AAPL
   scored 74% confidence (price up, agrees) against NVDA's 56% (price down,
   contradicts). That branch was dead code while `trend` was always "unknown".
-- **Reddit 403s because the IP is blocked by Reddit network security.**
-  The 403 body is an HTML page whose visible text reads "You've been blocked
-  by network security. If you think you've been blocked by mistake, file a
-  ticket below." Headers show `server: snooserv`, so it is Reddit's own edge,
-  not Cloudflare.
-  Nothing is wrong with the app or the credentials. Both OAuth grants return
-  valid tokens (the password grant's JWT carries sub=user), the app shows
-  under "authorized applications" with Read Content granted, and yet even
-  `/api/v1/me` is refused. The block sits in front of the API.
-  It also explains the captcha looping on reddit.com/prefs/apps - the same
-  network block hits the web UI.
-  Likely triggered by burst traffic while the collector and social filter
-  were being tested. Remedies are to file the ticket Reddit links from that
-  page, or wait for it to lapse. Earlier theories in this file - stale
-  credentials, wrong OAuth grant, unfinished API registration - are all
-  disproved; do not re-investigate them.
+- `datetime.utcnow()` in `schemas.py` is deprecated and emits warnings under
+  pytest. `store.py` already does it correctly with `timezone.utc`. Cosmetic
+  today, breaks on a future Python.
+- `/analyze` rejects non-alphanumeric tickers, so `BRK.B` is in `COMPANY_NAMES`
+  but unreachable through the API. Harmless, noted so it is not a surprise.
+- ~~**Reddit 403s because the IP is blocked by Reddit network security.**~~ —
+  **RESOLVED 2026-08-09: the block lapsed on its own.** Raw PRAW searches now
+  return posts with no warning (TSLA 4, GME 2, NVDA 7 on the day), and a full
+  five-ticker run produced zero warnings. No code changed; nothing was ever
+  wrong with the app or the credentials. Waiting it out was the fix.
+  The diagnosis is kept because it cost real time and must not be re-run: the
+  403 body was an HTML page reading "You've been blocked by network security",
+  headers showed `server: snooserv` (Reddit's own edge, not Cloudflare), both
+  OAuth grants returned valid tokens, and even `/api/v1/me` was refused — the
+  block sat in front of the API. It was most likely triggered by burst traffic
+  while the collector and social filter were being tested, so **do not hammer
+  Reddit during development**; that is what caused it.
+  Earlier theories — stale credentials, wrong OAuth grant, unfinished API
+  registration — are all disproved. Do not re-investigate them.
   `REDDIT_PASSWORD` is intentionally blank: the password grant is the correct
   flow for a script app and the code path stays, but it is a full-account
   credential and it changed nothing here.
-  Throughout, the pipeline degraded exactly as designed - warning appended,
-  news still analyzed, signal still produced. An unplanned real outage that
-  design rule 3 handled without a crash.
+  Throughout the outage the pipeline degraded exactly as designed — warning
+  appended, news still analyzed, signal still produced. An unplanned real
+  outage that design rule 3 handled without a crash, which is the best
+  evidence the rule was worth having.
 - Reddit volume is low after filtering, and that is deliberate. PRAW's search
   returns loosely-related posts, so `_filter_social()` requires the ticker in
   the POST TITLE. A TSLA run kept 0 of 3 and still returned 15 news items.
@@ -161,19 +195,52 @@ Known open issues:
    different source. Yahoo Finance RSS was added instead — see Working.
    The Bullish/Bearish validation-set idea is still worth revisiting if
    official access is ever obtained.
-6. ~~Unit tests for `_signal()` and `_weight()`~~ — DONE, 111 tests in `tests/`
+6. ~~Unit tests for `_signal()` and `_weight()`~~ — DONE, 209 tests in `tests/`
 7. ~~React dashboard~~ — DONE. `frontend/`, Vite + Recharts. Signal card with
    confidence meter, price card, a diverging bar chart of every item score
    with the model's reasoning on hover, and the full source list.
+8. ~~Record every run~~ — DONE, `app/store.py`, SQLite, point-in-time price.
+9. ~~Switch price source to yfinance~~ — DONE, no key and real history.
+10. ~~Forward-return evaluation~~ — DONE, `app/evaluate.py` and
+    `GET /history/evaluate`.
 
-All seven items are done. The pipeline runs end to end with no warnings on
-gpt-4o-mini and the dashboard renders it: `GET /analyze/AAPL` returns BUY at
-77%, `scorer` reads `llm`, and all four sources report.
+**This project is CLOSED as of 2026-08-09.** Everything above is done. A live
+five-ticker run produced zero warnings on gpt-4o-mini, all four sources
+reporting including Reddit: AAPL BUY 74%, NVDA BUY 84%, TSLA HOLD 62%,
+MSFT BUY 77%, AMD HOLD 63%, all `scorer=llm`, all recorded to `data/runs.db`.
 
-Next things worth doing, none of them blocking:
+## What the evaluation is worth
+
+Be honest about this in a demo or an interview, because an interviewer will
+get there in one question and the honest answer is the stronger one.
+
+The evaluator is real and the plumbing is correct. **The result is not a
+result.** There are a handful of recorded runs, all still inside their
+horizon, so nothing has resolved. Even after months of daily runs the sample
+would be far too small to distinguish a real edge from noise, and none of it
+is adjusted for transaction costs, slippage, or a market benchmark. News
+sentiment is also the most-tried retail signal there is; the prior that any
+edge survives an LLM-latency pipeline is low.
+
+That is why `conclusive` is a field in the response and why the caveats ship
+in the same object as the numbers. The point of this module was never to
+prove an edge — it was to build the thing that could detect one, and to avoid
+the three standard ways of fooling yourself while doing it: look-ahead on
+entry, HOLD padding the hit rate, and a re-adjusted price series turning a
+split into a fake loss. All three are guarded and unit-tested.
+
+"I measured my own signal and the sample was too small to conclude anything"
+is the correct finding, and it is a better thing to be able to say than a
+hit rate would be.
+
+## If work resumes
+
+Nothing here is blocking, and none of it is on the critical path:
 - No caching. Every request refetches everything and re-scores it.
-- Alpha Vantage free tier is 25 requests/day, so a live demo can exhaust it.
 - Switch back to Claude with `LLM_PROVIDER=anthropic` once credits are bought.
+- The dashboard does not surface `/history` or `/history/evaluate` at all.
+- Keep running `/analyze` occasionally to accumulate evaluable history.
+- `datetime.utcnow()` in `schemas.py` should become `now(timezone.utc)`.
 
 ## Working preferences
 

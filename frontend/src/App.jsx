@@ -64,7 +64,8 @@ function PriceCard({ price }) {
       <section className="card">
         <h2>Price</h2>
         <p className="empty">
-          No price data — Alpha Vantage key missing, or the daily quota is spent.
+          No price data — yfinance returned nothing for this ticker, and the
+          Alpha Vantage fallback did not fill the gap either.
         </p>
       </section>
     );

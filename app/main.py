@@ -1,10 +1,11 @@
 """FastAPI entrypoint.  Run:  uvicorn app.main:app --reload"""
+import asyncio
 import logging
 
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 
-from app import store
+from app import evaluate, store
 from app.agents import analyzer, collector
 from app.pipeline import run_pipeline
 from app.schemas import CollectedData, Report, SentimentAnalysis
@@ -64,3 +65,24 @@ async def get_history(ticker: str | None = None, limit: int = 100):
 async def get_history_stats():
     """How much has been recorded so far."""
     return store.stats()
+
+
+@app.get("/history/evaluate")
+async def get_history_evaluation(ticker: str | None = None,
+                                 horizon: int = evaluate.HORIZON_SESSIONS,
+                                 llm_only: bool = True):
+    """Score past signals against what prices actually did.
+
+    Returns the hit rate and mean forward return, broken down by signal and by
+    confidence bucket - and, in the same object, the caveats that say why those
+    numbers may not mean what you want them to. Reading one without the other
+    is the mistake this endpoint exists to prevent.
+
+    Runs on a worker thread: it fetches one price history per ticker, and
+    blocking the event loop on that would stall concurrent /analyze calls.
+    """
+    if not 1 <= horizon <= 60:
+        raise HTTPException(400, "horizon must be 1-60 sessions")
+    return await asyncio.to_thread(
+        evaluate.run_evaluation, ticker=ticker, horizon=horizon,
+        llm_only=llm_only)
