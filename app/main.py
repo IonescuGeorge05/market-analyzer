@@ -13,6 +13,18 @@ from app.schemas import CollectedData, Report, SentimentAnalysis
 logging.basicConfig(level=logging.INFO,
                     format="%(asctime)s %(levelname)s %(name)s: %(message)s")
 
+# httpx logs every request at INFO with the FULL URL, query string included.
+# NewsAPI and Alpha Vantage both take their key as a query parameter, so at
+# INFO the logs read:
+#
+#   GET https://newsapi.org/v2/everything?q=...&apiKey=<your real key>
+#
+# That is a live credential in plaintext in any terminal, screenshot, pasted
+# log or aggregated log stream. Our own logs already report what matters
+# ("news: 119 fetched -> 15 kept"), so nothing is lost by silencing it.
+logging.getLogger("httpx").setLevel(logging.WARNING)
+logging.getLogger("httpcore").setLevel(logging.WARNING)
+
 app = FastAPI(title="Market Sentiment Analyzer", version="0.1.0")
 
 # Any localhost port, not a fixed list. Vite silently moves to 5174 when 5173

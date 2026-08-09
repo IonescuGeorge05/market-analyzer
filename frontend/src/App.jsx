@@ -23,7 +23,10 @@ function SignalCard({ report }) {
   return (
     <section className={`signal-card ${SIGNAL_CLASS[report.signal]}`}>
       <div className="signal-main">
-        <span className="signal-label">Signal</span>
+        {/* The ticker belongs here. Without it every report renders
+            identically and there is nothing on screen saying which symbol
+            you are looking at - which reads as the app being stuck. */}
+        <span className="signal-label">{report.ticker} · Signal</span>
         <span className="signal-value">{report.signal}</span>
       </div>
 
@@ -185,7 +188,10 @@ function Bullets({ title, items, tone }) {
 }
 
 export default function App() {
-  const [ticker, setTicker] = useState("AAPL");
+  // Empty, not pre-filled. A box arriving with "AAPL" already in it reads as
+  // a fixed label rather than an input you are meant to type over - it looked
+  // like the app could only ever analyze one stock.
+  const [ticker, setTicker] = useState("");
   const [report, setReport] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -233,11 +239,15 @@ export default function App() {
         <input
           value={ticker}
           onChange={(e) => setTicker(e.target.value)}
-          placeholder="Ticker, e.g. AAPL"
+          // Select-all on focus so the previous ticker is typed over rather
+          // than deleted character by character.
+          onFocus={(e) => e.target.select()}
+          placeholder="Enter any ticker — AAPL, NVDA, TSLA, BTC…"
           aria-label="Ticker symbol"
           maxLength={10}
           spellCheck="false"
           autoComplete="off"
+          autoFocus
         />
         <button type="submit" disabled={loading || !ticker.trim()}>
           {loading ? "Analyzing…" : "Analyze"}
