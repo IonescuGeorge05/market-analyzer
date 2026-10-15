@@ -123,7 +123,14 @@ Working:
   (A stray empty `.git` in the home directory used to swallow it.)
 
 Known open issues:
-- **Currently running on OpenAI (`gpt-4o-mini`), not Claude.** The provider is
+- **Now running on Google Gemini's free tier** (since 2026-10-15), through
+  the `openai` provider: `OPENAI_BASE_URL` points at Gemini's
+  OpenAI-compatible endpoint, with `OPENAI_MODEL=gemini-3.5-flash` and
+  `OPENAI_REASONING_EFFORT=minimal`. Without that last setting, its hidden
+  reasoning eats the Reporter's token budget and the summary JSON comes back
+  truncated. The free tier allows 20 requests per day per model; each
+  `/analyze` uses 3. The OpenAI account ran out of credit.
+- **Previously on OpenAI (`gpt-4o-mini`), not Claude.** The provider is
   a `.env` setting now — `LLM_PROVIDER=anthropic|openai`, resolved in
   `app/llm.py`. Agents never import a provider directly and a test enforces
   that. Switch back with one line once Anthropic credits are bought; nothing
