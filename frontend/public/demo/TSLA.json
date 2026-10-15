@@ -1,0 +1,183 @@
+{
+  "ticker": "TSLA",
+  "signal": "BUY",
+  "confidence": 56,
+  "overall_score": 0.278,
+  "classification": "Bullish",
+  "summary": "Public sentiment for TSLA registers as moderately bullish with an overall score of 0.278, despite a short-term price decline of 2.82% over the past week to $367.16. The computed signal indicates a buy stance. However, the volume of data is extremely thin, with only 17 items analyzed. Positive commentary focuses on upcoming growth catalysts and potential technical upside, while negative discourse is minimal and largely tied to broader market pressures affecting Nasdaq futures. Because the item count is low and sources are limited, this sentiment read is weak and should be interpreted with caution. This overview reflects public sentiment analysis only and does not constitute investment advice.",
+  "key_drivers": [
+    "Anticipation of new growth engines and upcoming earnings catalysts",
+    "Technical commentary suggesting potential upside room",
+    "Moderately bullish overall sentiment score of 0.278"
+  ],
+  "risk_factors": [
+    "Very low item count of 17, making the sentiment read weak",
+    "Recent 2.82% weekly price decline to $367.16",
+    "Broader macroeconomic and Nasdaq futures pressure"
+  ],
+  "markdown": "# TSLA - Market Sentiment Report\n\n**Signal:** BUY  |  **Confidence:** 56%\n**Sentiment:** Bullish (+0.28)\n**Price:** $367.16 (-2.82% over 5 sessions, down)\n**Sources analyzed:** 17\n\n## Summary\n\nPublic sentiment for TSLA registers as moderately bullish with an overall score of 0.278, despite a short-term price decline of 2.82% over the past week to $367.16. The computed signal indicates a buy stance. However, the volume of data is extremely thin, with only 17 items analyzed. Positive commentary focuses on upcoming growth catalysts and potential technical upside, while negative discourse is minimal and largely tied to broader market pressures affecting Nasdaq futures. Because the item count is low and sources are limited, this sentiment read is weak and should be interpreted with caution. This overview reflects public sentiment analysis only and does not constitute investment advice.\n\n## Key drivers\n\n- Anticipation of new growth engines and upcoming earnings catalysts\n- Technical commentary suggesting potential upside room\n- Moderately bullish overall sentiment score of 0.278\n\n## Risk factors\n\n- Very low item count of 17, making the sentiment read weak\n- Recent 2.82% weekly price decline to $367.16\n- Broader macroeconomic and Nasdaq futures pressure\n\n---\n*Sentiment analysis of public sources. Not investment advice.*",
+  "generated_at": "2026-10-15T10:38:37.126670",
+  "warnings": [],
+  "price": {
+    "current": 367.16,
+    "week_ago": 377.81,
+    "change_pct": -2.82,
+    "trend": "down"
+  },
+  "scored_items": [
+    {
+      "source": "Biztoc.com",
+      "kind": "news",
+      "title": "Dow Futures Rise, Nasdaq Subdued Premarket Ahead Of Inflation Data: ASML, MU, SKHY, TSLA, BAC, LQDA, GME, IREN Stocks In Focus",
+      "score": 0.1,
+      "reasoning": "broad market premarket focus, neutral context",
+      "weight": 1.0,
+      "scorer": "llm"
+    },
+    {
+      "source": "The Times of India",
+      "kind": "news",
+      "title": "US Stock market on Columbus day predictions: S&P 500, Dow Jones, Nasdaq, Russell 2000 investors eye tricky Monday on Indigenous Peoples' Day. Nvidia, Apple, Micron, AMD, Tesla other stocks to watch out today",
+      "score": 0.1,
+      "reasoning": "upcoming earnings season, neutral watchlist mention",
+      "weight": 1.0,
+      "scorer": "llm"
+    },
+    {
+      "source": "Biztoc.com",
+      "kind": "news",
+      "title": "Forget the Recent Delivery Beat: Here's the Key Number That Will Decide Investors' Reaction to Tesla's Earnings",
+      "score": 0.6,
+      "reasoning": "strong vehicle delivery beat exceeded estimates",
+      "weight": 1.0,
+      "scorer": "llm"
+    },
+    {
+      "source": "Yahoo Finance",
+      "kind": "news",
+      "title": "Why Are Nasdaq Futures Sinking Premarket? CRWV, MU, TSM, SKHY, IBRX, RKLB, TSLA Stocks In Focus",
+      "score": -0.3,
+      "reasoning": "nasdaq futures sinking in premarket trading",
+      "weight": 1.0,
+      "scorer": "llm"
+    },
+    {
+      "source": "Livemint",
+      "kind": "news",
+      "title": "How to invest in US stocks from India: Check options to buy shares of American companies like Apple, Tesla and more",
+      "score": 0.0,
+      "reasoning": "informative guide on investing from India",
+      "weight": 1.0,
+      "scorer": "llm"
+    },
+    {
+      "source": "Biztoc.com",
+      "kind": "news",
+      "title": "SPCX, TSM, APLD, AMZN, TSLA: Why Retail Traders Couldn\u2019t Take Their Eyes Off These Stocks Last Week",
+      "score": 0.0,
+      "reasoning": "general retail watchlist, tesla not highlighted",
+      "weight": 1.0,
+      "scorer": "llm"
+    },
+    {
+      "source": "Biztoc.com",
+      "kind": "news",
+      "title": "Should You Sell Tesla? I Sold 1 Other Winner Too Early. Here's What I Learned",
+      "score": 0.5,
+      "reasoning": "shares enjoying October surge and strong deliveries",
+      "weight": 1.0,
+      "scorer": "llm"
+    },
+    {
+      "source": "Biztoc.com",
+      "kind": "news",
+      "title": "Gain More From Megachargers Or Tokenized Stock Trading?",
+      "score": 0.5,
+      "reasoning": "new Megacharger network launch expands commercial utility",
+      "weight": 1.0,
+      "scorer": "llm"
+    },
+    {
+      "source": "Biztoc.com",
+      "kind": "news",
+      "title": "Symbotic Has a $22.5 Billion Backlog. Here's Why It Could Be the Best Robotics Stock Nobody Talks About",
+      "score": 0.0,
+      "reasoning": "mentions Tesla only as a comparison",
+      "weight": 1.0,
+      "scorer": "llm"
+    },
+    {
+      "source": "Yahoo Finance",
+      "kind": "news",
+      "title": "TSLA Stock Slips Overnight Ahead Of Roadster Event \u2014 Elon Musk Promises \u2018Greatest Product Demo Of All Time\u2019",
+      "score": 0.1,
+      "reasoning": "overnight slip offset by product hype",
+      "weight": 1.0,
+      "scorer": "llm"
+    },
+    {
+      "source": "Biztoc.com",
+      "kind": "news",
+      "title": "Tesla: The Next Growth Engine Is Taking Shape",
+      "score": 0.8,
+      "reasoning": "strong growth outlook and FSD adoption",
+      "weight": 1.0,
+      "scorer": "llm"
+    },
+    {
+      "source": "Biztoc.com",
+      "kind": "news",
+      "title": "Forget Chasing Volume. Here's the Most Active Stock I'd Actually Hold for 5 Years",
+      "score": 0.4,
+      "reasoning": "named as a solid long-term holding",
+      "weight": 1.0,
+      "scorer": "llm"
+    },
+    {
+      "source": "Yahoo Finance",
+      "kind": "news",
+      "title": "Analyst Sees TSLA-SPCX Merger Coming By December, but Prediction Markets Aren\u2019t Buying It",
+      "score": 0.2,
+      "reasoning": "speculative merger prediction with mixed sentiment",
+      "weight": 1.0,
+      "scorer": "llm"
+    },
+    {
+      "source": "Biztoc.com",
+      "kind": "news",
+      "title": "Tesla Completes Comeback, Paving Way For 30% Upside",
+      "score": 0.8,
+      "reasoning": "comeback completed with significant projected upside",
+      "weight": 1.0,
+      "scorer": "llm"
+    },
+    {
+      "source": "Biztoc.com",
+      "kind": "news",
+      "title": "Tesla chart watchers eye $400-mark as key level for breakout",
+      "score": 0.5,
+      "reasoning": "recent gains and eyes on $400 breakout",
+      "weight": 1.0,
+      "scorer": "llm"
+    },
+    {
+      "source": "r/stocks",
+      "kind": "reddit",
+      "title": "Fresh money today: TSLA or AVGO",
+      "score": 0.0,
+      "reasoning": "neutral open question comparing two stocks",
+      "weight": 0.3,
+      "scorer": "llm"
+    },
+    {
+      "source": "r/stocks",
+      "kind": "reddit",
+      "title": "What's everyone's take on Tesla right now?",
+      "score": 0.1,
+      "reasoning": "Mixed views on delivery numbers and lofty valuation.",
+      "weight": 0.3,
+      "scorer": "llm"
+    }
+  ],
+  "item_count": 17
+}

@@ -1,0 +1,165 @@
+{
+  "ticker": "AMD",
+  "signal": "HOLD",
+  "confidence": 58,
+  "overall_score": 0.06,
+  "classification": "Neutral",
+  "summary": "Public sentiment for AMD is currently neutral with an overall score of 0.06, reflecting a divided market backdrop. The data is based on an item count of 15 sources, meaning this read is weak and should be interpreted with caution. Recent price action shows a downward trend, with the stock falling 11.62% over the past week from $645.86 to $570.82. Positive sentiment is supported by supply chain updates from CEO Su and developments in AI infrastructure financing, such as the credit support deal for a Texas AI site. Conversely, negative sentiment is driven by broader macroeconomic and sector-wide concerns, including cracks in the AI trade and investor reactions to OpenAI's revenue gap affecting semiconductor peers like Nvidia and AMD. The computed signal for the asset is a hold.",
+  "key_drivers": [
+    "Fermi credit support deal for Texas AI site",
+    "CEO Su updates regarding supply chain news",
+    "Inclusion among leading buys in stock market futures"
+  ],
+  "risk_factors": [
+    "Cracks emerging in the broader AI trade",
+    "OpenAI revenue gap affecting semiconductor investor sentiment",
+    "Recent sharp price decline of 11.62% over the past week"
+  ],
+  "markdown": "# AMD - Market Sentiment Report\n\n**Signal:** HOLD  |  **Confidence:** 58%\n**Sentiment:** Neutral (+0.06)\n**Price:** $570.82 (-11.62% over 5 sessions, down)\n**Sources analyzed:** 15\n\n## Summary\n\nPublic sentiment for AMD is currently neutral with an overall score of 0.06, reflecting a divided market backdrop. The data is based on an item count of 15 sources, meaning this read is weak and should be interpreted with caution. Recent price action shows a downward trend, with the stock falling 11.62% over the past week from $645.86 to $570.82. Positive sentiment is supported by supply chain updates from CEO Su and developments in AI infrastructure financing, such as the credit support deal for a Texas AI site. Conversely, negative sentiment is driven by broader macroeconomic and sector-wide concerns, including cracks in the AI trade and investor reactions to OpenAI's revenue gap affecting semiconductor peers like Nvidia and AMD. The computed signal for the asset is a hold.\n\n## Key drivers\n\n- Fermi credit support deal for Texas AI site\n- CEO Su updates regarding supply chain news\n- Inclusion among leading buys in stock market futures\n\n## Risk factors\n\n- Cracks emerging in the broader AI trade\n- OpenAI revenue gap affecting semiconductor investor sentiment\n- Recent sharp price decline of 11.62% over the past week\n\n---\n*Sentiment analysis of public sources. Not investment advice.*",
+  "generated_at": "2026-10-15T10:39:15.832220",
+  "warnings": [],
+  "price": {
+    "current": 570.82,
+    "week_ago": 645.86,
+    "change_pct": -11.62,
+    "trend": "down"
+  },
+  "scored_items": [
+    {
+      "source": "The Times of India",
+      "kind": "news",
+      "title": "US Stock Market prediction for Tuesday: S&P 500, Nasdaq set for volatile trading at Wall Street, Dow Jones, Russell 2000 steady, Nvidia, AMD, Marvell, Micron Technology, Sandisk, JPMorgan Chase, Wells Fargo, Johnson & Johnson shares under scanner",
+      "score": -0.3,
+      "reasoning": "shares declined in volatile trading",
+      "weight": 1.0,
+      "scorer": "llm"
+    },
+    {
+      "source": "The Times of India",
+      "kind": "news",
+      "title": "US Stock market on Columbus day predictions: S&P 500, Dow Jones, Nasdaq, Russell 2000 investors eye tricky Monday on Indigenous Peoples' Day. Nvidia, Apple, Micron, AMD, Tesla other stocks to watch out today",
+      "score": 0.0,
+      "reasoning": "general market preview without specific direction",
+      "weight": 1.0,
+      "scorer": "llm"
+    },
+    {
+      "source": "Crypto Briefing",
+      "kind": "news",
+      "title": "Nvidia, AMD shares fall as OpenAI revenue report rattles AI investors",
+      "score": -0.6,
+      "reasoning": "shares fell due to AI revenue concerns",
+      "weight": 1.0,
+      "scorer": "llm"
+    },
+    {
+      "source": "Biztoc.com",
+      "kind": "news",
+      "title": "AMD CEO Su shares important supply news with stock market investors",
+      "score": 0.6,
+      "reasoning": "massive gains and strong AI boom position",
+      "weight": 1.0,
+      "scorer": "llm"
+    },
+    {
+      "source": "Biztoc.com",
+      "kind": "news",
+      "title": "Dow Jones Futures: Stock Market Holds Up As Meta, AMD Lead Buys; ASML, CPI Inflation Due",
+      "score": 0.5,
+      "reasoning": "stock leads market buys during rally",
+      "weight": 1.0,
+      "scorer": "llm"
+    },
+    {
+      "source": "Biztoc.com",
+      "kind": "news",
+      "title": "Premarket Movers: CRWV, AMD And Other AI Stocks Rebound, SpaceX Deal Boosts Tower Shares",
+      "score": 0.4,
+      "reasoning": "AI stocks rebound on positive revenue news",
+      "weight": 1.0,
+      "scorer": "llm"
+    },
+    {
+      "source": "Biztoc.com",
+      "kind": "news",
+      "title": "AMD Stock Fell 6% in Three Sessions After Its Record Close. Here\u2019s What OpenAI\u2019s $20 Billion Revenue Gap Means for the Stock",
+      "score": -0.4,
+      "reasoning": "stock fell following record close",
+      "weight": 1.0,
+      "scorer": "llm"
+    },
+    {
+      "source": "Biztoc.com",
+      "kind": "news",
+      "title": "INTC, AMD, NVDA, MU: Chip Stocks Open Mixed Premarket After Worst Week In A Month",
+      "score": -0.2,
+      "reasoning": "chip stocks open mixed after poor week",
+      "weight": 1.0,
+      "scorer": "llm"
+    },
+    {
+      "source": "Biztoc.com",
+      "kind": "news",
+      "title": "Fermi shares surge on AMD credit support deal for Texas AI site",
+      "score": 0.8,
+      "reasoning": "credit support deal for AI site drives shares up",
+      "weight": 1.0,
+      "scorer": "llm"
+    },
+    {
+      "source": "Biztoc.com",
+      "kind": "news",
+      "title": "Nvidia and AMD Reached a Historic Valuation Split. 1 Stock Is Far Safer",
+      "score": 0.0,
+      "reasoning": "neutral comparison between Nvidia and AMD",
+      "weight": 1.0,
+      "scorer": "llm"
+    },
+    {
+      "source": "Biztoc.com",
+      "kind": "news",
+      "title": "History Says This Will Happen to AMD Stock in 2027",
+      "score": 0.5,
+      "reasoning": "strong year-to-date surge highlights positive momentum",
+      "weight": 1.0,
+      "scorer": "llm"
+    },
+    {
+      "source": "Biztoc.com",
+      "kind": "news",
+      "title": "Not Anthropic. Not AMD. Here's My Top AI Stock for 2027",
+      "score": -0.2,
+      "reasoning": "prefers another stock over AMD for 2027",
+      "weight": 1.0,
+      "scorer": "llm"
+    },
+    {
+      "source": "Yahoo Finance",
+      "kind": "news",
+      "title": "AMD Stock Takes a Bigger Hit as Cracks Emerge in the AI Trade",
+      "score": -0.7,
+      "reasoning": "shares fall due to AI spending concerns",
+      "weight": 1.0,
+      "scorer": "llm"
+    },
+    {
+      "source": "PRNewswire",
+      "kind": "news",
+      "title": "REGENXBIO to Host Investor Event Highlighting Surabgene Lomparvovec (Sura-vec) in Wet AMD on October 20",
+      "score": 0.0,
+      "reasoning": "unrelated wet AMD medical news for RGNX",
+      "weight": 1.0,
+      "scorer": "llm"
+    },
+    {
+      "source": "Biztoc.com",
+      "kind": "news",
+      "title": "Prediction: This Will Be AMD's Stock Price in 1 Year",
+      "score": 0.5,
+      "reasoning": "reflects massive recent gains and future outlook",
+      "weight": 1.0,
+      "scorer": "llm"
+    }
+  ],
+  "item_count": 15
+}

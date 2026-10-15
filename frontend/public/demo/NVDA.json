@@ -1,0 +1,165 @@
+{
+  "ticker": "NVDA",
+  "signal": "HOLD",
+  "confidence": 61,
+  "overall_score": 0.1,
+  "classification": "Neutral",
+  "summary": "Public sentiment for NVDA is currently neutral, with an overall score of 0.1 and a computed signal of HOLD. The equity is experiencing a downward price trend, falling 6.81% over the past week to $221.30 from $237.47. The read is weak, based on a low item count of only 15 monitored sources. Positive sentiment focuses on ongoing artificial intelligence tailwinds, enterprise chip demand, and new operational partnerships. Conversely, negative sentiment reflects broader market volatility, concerns related to ecosystem partners such as CoreWeave, and localized deployment updates. Overall, the available public data indicates a market weighing long-term sector tailwinds against near-term price correction and headline risks.",
+  "key_drivers": [
+    "Sustained AI infrastructure demand and growth tailwinds",
+    "Enterprise partnerships for data processing integration",
+    "Continued leadership position in the artificial intelligence chip market"
+  ],
+  "risk_factors": [
+    "Recent downward price momentum and market volatility",
+    "Ecosystem partner and sector-related panic headlines",
+    "Localized deployment friction reported in news flow"
+  ],
+  "markdown": "# NVDA - Market Sentiment Report\n\n**Signal:** HOLD  |  **Confidence:** 61%\n**Sentiment:** Neutral (+0.10)\n**Price:** $221.3 (-6.81% over 5 sessions, down)\n**Sources analyzed:** 15\n\n## Summary\n\nPublic sentiment for NVDA is currently neutral, with an overall score of 0.1 and a computed signal of HOLD. The equity is experiencing a downward price trend, falling 6.81% over the past week to $221.30 from $237.47. The read is weak, based on a low item count of only 15 monitored sources. Positive sentiment focuses on ongoing artificial intelligence tailwinds, enterprise chip demand, and new operational partnerships. Conversely, negative sentiment reflects broader market volatility, concerns related to ecosystem partners such as CoreWeave, and localized deployment updates. Overall, the available public data indicates a market weighing long-term sector tailwinds against near-term price correction and headline risks.\n\n## Key drivers\n\n- Sustained AI infrastructure demand and growth tailwinds\n- Enterprise partnerships for data processing integration\n- Continued leadership position in the artificial intelligence chip market\n\n## Risk factors\n\n- Recent downward price momentum and market volatility\n- Ecosystem partner and sector-related panic headlines\n- Localized deployment friction reported in news flow\n\n---\n*Sentiment analysis of public sources. Not investment advice.*",
+  "generated_at": "2026-10-15T10:38:13.413906",
+  "warnings": [],
+  "price": {
+    "current": 221.3,
+    "week_ago": 237.47,
+    "change_pct": -6.81,
+    "trend": "down"
+  },
+  "scored_items": [
+    {
+      "source": "The Times of India",
+      "kind": "news",
+      "title": "US Stock Market prediction for Tuesday: S&P 500, Nasdaq set for volatile trading at Wall Street, Dow Jones, Russell 2000 steady, Nvidia, AMD, Marvell, Micron Technology, Sandisk, JPMorgan Chase, Wells Fargo, Johnson & Johnson shares under scanner",
+      "score": -0.3,
+      "reasoning": "shares declined in volatile trading",
+      "weight": 1.0,
+      "scorer": "llm"
+    },
+    {
+      "source": "Biztoc.com",
+      "kind": "news",
+      "title": "Nvidia and AMD Reached a Historic Valuation Split. 1 Stock Is Far Safer",
+      "score": -0.2,
+      "reasoning": "historic valuation split highlights safety concerns",
+      "weight": 1.0,
+      "scorer": "llm"
+    },
+    {
+      "source": "Biztoc.com",
+      "kind": "news",
+      "title": "Nvidia Stocks Fall as Copenhagen Adds a Blackwell Deployment",
+      "score": -0.2,
+      "reasoning": "shares fell despite new deployment",
+      "weight": 1.0,
+      "scorer": "llm"
+    },
+    {
+      "source": "Biztoc.com",
+      "kind": "news",
+      "title": "Nvidia Stock Has a Massive AI Tailwind. Here\u2019s the Bull Case",
+      "score": 0.8,
+      "reasoning": "massive AI tailwind and strong bull case",
+      "weight": 1.0,
+      "scorer": "llm"
+    },
+    {
+      "source": "Biztoc.com",
+      "kind": "news",
+      "title": "JPMorgan Raises Income Outlook As Bond Trading Slips",
+      "score": 0.0,
+      "reasoning": "generic clickbait promotional text",
+      "weight": 1.0,
+      "scorer": "llm"
+    },
+    {
+      "source": "Biztoc.com",
+      "kind": "news",
+      "title": "Microsoft Now Has 3 Generations of Its Own AI Chips. Nvidia Is Still the Chip Stock to Buy",
+      "score": 0.6,
+      "reasoning": "identified as the top chip stock to buy",
+      "weight": 1.0,
+      "scorer": "llm"
+    },
+    {
+      "source": "Yahoo Finance",
+      "kind": "news",
+      "title": "Why CoreWeave stock panic matters to Nvidia, explained in under 30 seconds",
+      "score": -0.4,
+      "reasoning": "CoreWeave market panic creates risks for Nvidia",
+      "weight": 1.0,
+      "scorer": "llm"
+    },
+    {
+      "source": "Biztoc.com",
+      "kind": "news",
+      "title": "The Goldman Sachs Group, Inc. Q3 2026 Earnings Call Summary",
+      "score": 0.0,
+      "reasoning": "irrelevant earnings call summary with clickbait",
+      "weight": 1.0,
+      "scorer": "llm"
+    },
+    {
+      "source": "Biztoc.com",
+      "kind": "news",
+      "title": "The Deep Value Play for Growth Investors Isn't Artificial Intelligence, It's This Forgotten Industry",
+      "score": 0.0,
+      "reasoning": "general discussion on AI valuations, neutral for Nvidia",
+      "weight": 1.0,
+      "scorer": "llm"
+    },
+    {
+      "source": "CNA",
+      "kind": "news",
+      "title": "LSEG taps Nvidia for faster historical market data processing",
+      "score": 0.5,
+      "reasoning": "major partnership with LSEG highlights strong demand",
+      "weight": 1.0,
+      "scorer": "llm"
+    },
+    {
+      "source": "Biztoc.com",
+      "kind": "news",
+      "title": "If NVIDIA Grows At 10% a Year, Here\u2019s What $1,000 Becomes By 2030",
+      "score": 0.3,
+      "reasoning": "models positive long-term growth projection",
+      "weight": 1.0,
+      "scorer": "llm"
+    },
+    {
+      "source": "Biztoc.com",
+      "kind": "news",
+      "title": "Why Bumble Stock Skyrocketed Today",
+      "score": 0.0,
+      "reasoning": "primarily about Bumble acquisition, Nvidia mentioned as clickbait",
+      "weight": 1.0,
+      "scorer": "llm"
+    },
+    {
+      "source": "Slickdeals.net",
+      "kind": "news",
+      "title": "YMMV - $1359 ASUS ROG G700 Gaming Desktop Tower | Intel\u00ae Core\u2122 Ultra 7 265F | NVIDIA\u00ae GeForce RTX\u2122 5070 | 32GB DDR5 RAM | 2TB SSD | Clearance Sam's Club",
+      "score": 0.0,
+      "reasoning": "consumer retail deal, negligible impact on stock",
+      "weight": 1.0,
+      "scorer": "llm"
+    },
+    {
+      "source": "Biztoc.com",
+      "kind": "news",
+      "title": "Abishai Financial Asia Reports S&P 500 Tech-Led Advance",
+      "score": 0.4,
+      "reasoning": "Nvidia driving market indexes to record highs",
+      "weight": 1.0,
+      "scorer": "llm"
+    },
+    {
+      "source": "Biztoc.com",
+      "kind": "news",
+      "title": "Apple Hits Fresh All-Time High",
+      "score": 0.0,
+      "reasoning": "primarily about Apple, Nvidia mentioned as promotional hook",
+      "weight": 1.0,
+      "scorer": "llm"
+    }
+  ],
+  "item_count": 15
+}

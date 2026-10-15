@@ -1,0 +1,156 @@
+{
+  "ticker": "AAPL",
+  "signal": "BUY",
+  "confidence": 76,
+  "overall_score": 0.209,
+  "classification": "Bullish",
+  "summary": "Apple (AAPL) exhibits a mildly bullish sentiment profile, supported by a score of 0.209 and a positive price movement of 1.87% over the past week to $342.96. The read is weak, based on a low item count of 14 public sources. Bullish drivers include shares reaching new all-time highs and reports concerning potential China AI approval. Conversely, bearish pressures stem from broader macroeconomic weakness, including a severe chipmaker rout, hotter-than-expected CPI data, and ongoing legal developments involving trade secrets. While the computed signal indicates a buy based on current momentum, the low volume of underlying data warrants cautious interpretation of the public sentiment picture.",
+  "key_drivers": [
+    "AAPL shares reaching new all-time highs",
+    "Reports of potential China AI approval",
+    "Positive 1.87% weekly price performance"
+  ],
+  "risk_factors": [
+    "Low item count indicating a weak data read",
+    "Broader chipmaker rout and hot CPI data",
+    "Legal developments regarding trade secrets"
+  ],
+  "markdown": "# AAPL - Market Sentiment Report\n\n**Signal:** BUY  |  **Confidence:** 76%\n**Sentiment:** Bullish (+0.21)\n**Price:** $342.96 (+1.87% over 5 sessions, up)\n**Sources analyzed:** 14\n\n## Summary\n\nApple (AAPL) exhibits a mildly bullish sentiment profile, supported by a score of 0.209 and a positive price movement of 1.87% over the past week to $342.96. The read is weak, based on a low item count of 14 public sources. Bullish drivers include shares reaching new all-time highs and reports concerning potential China AI approval. Conversely, bearish pressures stem from broader macroeconomic weakness, including a severe chipmaker rout, hotter-than-expected CPI data, and ongoing legal developments involving trade secrets. While the computed signal indicates a buy based on current momentum, the low volume of underlying data warrants cautious interpretation of the public sentiment picture.\n\n## Key drivers\n\n- AAPL shares reaching new all-time highs\n- Reports of potential China AI approval\n- Positive 1.87% weekly price performance\n\n## Risk factors\n\n- Low item count indicating a weak data read\n- Broader chipmaker rout and hot CPI data\n- Legal developments regarding trade secrets\n\n---\n*Sentiment analysis of public sources. Not investment advice.*",
+  "generated_at": "2026-10-15T10:37:50.663098",
+  "warnings": [],
+  "price": {
+    "current": 342.96,
+    "week_ago": 336.67,
+    "change_pct": 1.87,
+    "trend": "up"
+  },
+  "scored_items": [
+    {
+      "source": "Livemint",
+      "kind": "news",
+      "title": "How to invest in US stocks from India: Check options to buy shares of American companies like Apple, Tesla and more",
+      "score": 0.1,
+      "reasoning": "broad guide about investing in US stocks",
+      "weight": 1.0,
+      "scorer": "llm"
+    },
+    {
+      "source": "Yahoo Finance",
+      "kind": "news",
+      "title": "Premarket Movers: AAPL Gains On China AI Approval Report \u2014 Why WMT, NFLX Stocks Are Also Rising",
+      "score": 0.7,
+      "reasoning": "regulatory approval for AI in China drives gains",
+      "weight": 1.0,
+      "scorer": "llm"
+    },
+    {
+      "source": "Yahoo Finance",
+      "kind": "news",
+      "title": "Apple's Annual Revenue Quadrupled From $108 Billion to $416 Billion During Tim Cook's 15 Years as CEO, With iPhone Sales Alone Jumping From $47 Billion to Nearly $210 Billion. What That Growth Says About Betting on Apple's Next Chapter Under John Ternus.",
+      "score": 0.4,
+      "reasoning": "massive historical growth with leadership transition ahead",
+      "weight": 1.0,
+      "scorer": "llm"
+    },
+    {
+      "source": "Macdailynews.com",
+      "kind": "news",
+      "title": "Apple shares hit new all-time high",
+      "score": 0.8,
+      "reasoning": "shares reach new all-time high",
+      "weight": 1.0,
+      "scorer": "llm"
+    },
+    {
+      "source": "Yahoo Finance",
+      "kind": "news",
+      "title": "Here's What a $10,000 Investment in Apple Stock Could Be Worth in 5 Years",
+      "score": 0.5,
+      "reasoning": "strong historical performance highlights potential",
+      "weight": 1.0,
+      "scorer": "llm"
+    },
+    {
+      "source": "Yahoo Finance",
+      "kind": "news",
+      "title": "S&P 500, Nasdaq See Worst Day In Over Two Months As Chipmaker Rout Deepens, CPI Data Comes In Hot \u2014 AAPL, SPCX, DRAM, SOXX In Focus",
+      "score": -0.6,
+      "reasoning": "market selloff and hot inflation data pressure stocks",
+      "weight": 1.0,
+      "scorer": "llm"
+    },
+    {
+      "source": "MacRumors",
+      "kind": "news",
+      "title": "Apple Shares Videos for HomeView, Apple TV 4K, and HomePod Mini 2",
+      "score": 0.2,
+      "reasoning": "new product promotional videos released",
+      "weight": 1.0,
+      "scorer": "llm"
+    },
+    {
+      "source": "Yahoo Finance",
+      "kind": "news",
+      "title": "Is Netflix Stock Worth More Than Its Competitors?",
+      "score": 0.0,
+      "reasoning": "general comparison focusing mostly on Netflix",
+      "weight": 1.0,
+      "scorer": "llm"
+    },
+    {
+      "source": "PCMag.com",
+      "kind": "news",
+      "title": "Apple Finally Refreshes HomePod Mini and Apple TV 4K, With Price Bump",
+      "score": 0.2,
+      "reasoning": "New product refreshes with higher prices offer modest upside.",
+      "weight": 1.0,
+      "scorer": "llm"
+    },
+    {
+      "source": "Biztoc.com",
+      "kind": "news",
+      "title": "Home Push Puts Its Valuation Premium Back In Focus",
+      "score": 0.5,
+      "reasoning": "Smart home expansion reframes hardware mix positively for valuation.",
+      "weight": 1.0,
+      "scorer": "llm"
+    },
+    {
+      "source": "Crypto Briefing",
+      "kind": "news",
+      "title": "Judge orders OpenAI to expedite document release in Apple trade secrets case",
+      "score": -0.2,
+      "reasoning": "Trade secrets legal pressure creates mild headline risk.",
+      "weight": 1.0,
+      "scorer": "llm"
+    },
+    {
+      "source": "Yahoo Finance",
+      "kind": "news",
+      "title": "Global X Investments Canada Inc. Closes the Market",
+      "score": 0.0,
+      "reasoning": "Completely unrelated market closing event.",
+      "weight": 1.0,
+      "scorer": "llm"
+    },
+    {
+      "source": "TechRadar",
+      "kind": "news",
+      "title": "Global smartphone shipments just hit a 14-year low \u2014 here's why",
+      "score": 0.3,
+      "reasoning": "Outperforming peers in a weak smartphone market is positive.",
+      "weight": 1.0,
+      "scorer": "llm"
+    },
+    {
+      "source": "r/wallstreetbets",
+      "kind": "reddit",
+      "title": "Sold AAPL to buy SNDK",
+      "score": -0.4,
+      "reasoning": "Retail investor capitulation and major loss on sold shares.",
+      "weight": 0.3,
+      "scorer": "llm"
+    }
+  ],
+  "item_count": 14
+}

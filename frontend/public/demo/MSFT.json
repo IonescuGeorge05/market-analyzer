@@ -1,0 +1,111 @@
+{
+  "ticker": "MSFT",
+  "signal": "BUY",
+  "confidence": 79,
+  "overall_score": 0.578,
+  "classification": "Bullish",
+  "summary": "Microsoft (MSFT) registers a bullish sentiment read, supported by an overall score of 0.578 and a computed BUY signal. The stock recently reclaimed a $4 trillion market cap, trading flat at $533.69 with a modest 0.74% weekly gain. Public commentary highlights strong quarterly performance alongside robust growth drivers in the company's Azure cloud and artificial intelligence divisions. However, the data sample is limited to only nine items and lacks explicit bearish source material in the dataset, indicating that the read is weak and warrants cautious interpretation. This overview reflects public perception metrics only and does not constitute investment advice.",
+  "key_drivers": [
+    "Azure cloud growth and AI business scaling",
+    "Reclamation of the $4 trillion market cap",
+    "Strong recent quarterly financial results"
+  ],
+  "risk_factors": [
+    "Low item count limiting data reliability",
+    "Absence of balanced bearish feedback in current metrics",
+    "Valuation questions regarding whether the stock is fully priced"
+  ],
+  "markdown": "# MSFT - Market Sentiment Report\n\n**Signal:** BUY  |  **Confidence:** 79%\n**Sentiment:** Bullish (+0.58)\n**Price:** $533.69 (+0.74% over 5 sessions, flat)\n**Sources analyzed:** 9\n\n## Summary\n\nMicrosoft (MSFT) registers a bullish sentiment read, supported by an overall score of 0.578 and a computed BUY signal. The stock recently reclaimed a $4 trillion market cap, trading flat at $533.69 with a modest 0.74% weekly gain. Public commentary highlights strong quarterly performance alongside robust growth drivers in the company's Azure cloud and artificial intelligence divisions. However, the data sample is limited to only nine items and lacks explicit bearish source material in the dataset, indicating that the read is weak and warrants cautious interpretation. This overview reflects public perception metrics only and does not constitute investment advice.\n\n## Key drivers\n\n- Azure cloud growth and AI business scaling\n- Reclamation of the $4 trillion market cap\n- Strong recent quarterly financial results\n\n## Risk factors\n\n- Low item count limiting data reliability\n- Absence of balanced bearish feedback in current metrics\n- Valuation questions regarding whether the stock is fully priced\n\n---\n*Sentiment analysis of public sources. Not investment advice.*",
+  "generated_at": "2026-10-15T10:39:02.704669",
+  "warnings": [],
+  "price": {
+    "current": 533.69,
+    "week_ago": 529.76,
+    "change_pct": 0.74,
+    "trend": "flat"
+  },
+  "scored_items": [
+    {
+      "source": "Yahoo Finance",
+      "kind": "news",
+      "title": "Microsoft Had Its Best Quarter in 28 Years. Is it Too Late to Buy the Stock?",
+      "score": 0.8,
+      "reasoning": "best quarter in 28 years indicates strong growth",
+      "weight": 1.0,
+      "scorer": "llm"
+    },
+    {
+      "source": "Biztoc.com",
+      "kind": "news",
+      "title": "MSFT Stock Gets A Thumbs Up From Barclays \u2013 Firm Expects Quarter To Start Showing \u2018More Differentiation\u2019 In Software",
+      "score": 0.7,
+      "reasoning": "barclays endorsement and strategic chip scaling plans",
+      "weight": 1.0,
+      "scorer": "llm"
+    },
+    {
+      "source": "Crypto Briefing",
+      "kind": "news",
+      "title": "Microsoft reclaims $4 trillion market cap as Azure growth revives investor confidence",
+      "score": 0.8,
+      "reasoning": "market cap milestone and azure growth revive confidence",
+      "weight": 1.0,
+      "scorer": "llm"
+    },
+    {
+      "source": "Biztoc.com",
+      "kind": "news",
+      "title": "Microsoft Now Has 3 Generations of Its Own AI Chips. Nvidia Is Still the Chip Stock to Buy",
+      "score": 0.5,
+      "reasoning": "new AI chip innovation supports long-term outlook",
+      "weight": 1.0,
+      "scorer": "llm"
+    },
+    {
+      "source": "Biztoc.com",
+      "kind": "news",
+      "title": "Why the Market Dipped But Microsoft (MSFT) Gained Today",
+      "score": 0.4,
+      "reasoning": "outperformed the broader market in recent trading",
+      "weight": 1.0,
+      "scorer": "llm"
+    },
+    {
+      "source": "Biztoc.com",
+      "kind": "news",
+      "title": "Claude Was Right About Microsoft (MSFT): Can The Stock Keep Rising?",
+      "score": 0.6,
+      "reasoning": "unveiling new AI chips drives positive momentum",
+      "weight": 1.0,
+      "scorer": "llm"
+    },
+    {
+      "source": "Biztoc.com",
+      "kind": "news",
+      "title": "Microsoft Could Be Worth Far More as Its Cloud and AI Businesses Scale",
+      "score": 0.8,
+      "reasoning": "high price target implies significant upside potential",
+      "weight": 1.0,
+      "scorer": "llm"
+    },
+    {
+      "source": "Yahoo Finance",
+      "kind": "news",
+      "title": "Hornetsecurity by Proofpoint introduces new capabilities to support secure AI adoption for organisations using Microsoft 365",
+      "score": 0.3,
+      "reasoning": "new security capabilities strengthen M365 AI adoption",
+      "weight": 1.0,
+      "scorer": "llm"
+    },
+    {
+      "source": "Yahoo Finance",
+      "kind": "news",
+      "title": "3 Trillion-Dollar Giants That Could Be the Next Big Stock-Split Plays",
+      "score": 0.3,
+      "reasoning": "Potential stock splits often generate positive retail investor interest.",
+      "weight": 1.0,
+      "scorer": "llm"
+    }
+  ],
+  "item_count": 9
+}
