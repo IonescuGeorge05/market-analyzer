@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import {
   Bar, BarChart, Cell, ReferenceLine, ResponsiveContainer, Tooltip, XAxis, YAxis,
 } from "recharts";
-import { analyze, health } from "./api";
+import { DEMO, analyze, demoIndex, health } from "./api";
 import "./App.css";
 
 const SIGNAL_CLASS = { BUY: "buy", HOLD: "hold", SELL: "sell" };
@@ -196,15 +196,24 @@ export default function App() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [online, setOnline] = useState(null);
+  // Demo build only: which tickers have saved snapshots, and when they ran.
+  const [demo, setDemo] = useState(null);
 
   useEffect(() => {
+    if (DEMO) {
+      demoIndex().then(setDemo).catch(() => setDemo({ tickers: [] }));
+      return;
+    }
     health().then(() => setOnline(true)).catch(() => setOnline(false));
   }, []);
 
-  async function run(e) {
+  // `symbol` is passed by the demo ticker buttons, which run immediately
+  // rather than waiting for the state update from setTicker.
+  async function run(e, symbol) {
     e?.preventDefault();
-    const t = ticker.trim().toUpperCase();
+    const t = (symbol ?? ticker).trim().toUpperCase();
     if (!t) return;
+    if (symbol) setTicker(t);
     setLoading(true);
     setError(null);
     try {
@@ -230,10 +239,35 @@ export default function App() {
           <p className="eyebrow">Multi-agent pipeline</p>
           <h1>Market Sentiment Analyzer</h1>
         </div>
-        <span className={`status ${online === false ? "off" : online ? "on" : ""}`}>
-          {online === false ? "backend offline" : online ? "backend online" : "checking…"}
-        </span>
+        {DEMO ? (
+          <span className="status">demo · saved runs</span>
+        ) : (
+          <span className={`status ${online === false ? "off" : online ? "on" : ""}`}>
+            {online === false ? "backend offline" : online ? "backend online" : "checking…"}
+          </span>
+        )}
       </header>
+
+      {DEMO && (
+        <section className="card demo">
+          <p>
+            This is a static demo. GitHub Pages cannot run the Python backend,
+            so these are real pipeline runs recorded
+            {demo?.generated_at ? ` on ${demo.generated_at.slice(0, 10)}` : ""},
+            not live analysis. Run the project locally to analyze any ticker.
+          </p>
+          {demo?.tickers?.length > 0 && (
+            <div className="demo-tickers">
+              {demo.tickers.map((t) => (
+                <button key={t} type="button" onClick={(e) => run(e, t)}
+                        disabled={loading}>
+                  {t}
+                </button>
+              ))}
+            </div>
+          )}
+        </section>
+      )}
 
       <form className="search" onSubmit={run}>
         <input
@@ -265,7 +299,7 @@ export default function App() {
         <section className="card error">
           <h2>Request failed</h2>
           <p>{error}</p>
-          {online === false && (
+          {!DEMO && online === false && (
             <p className="dim">
               Start the API with <code>uvicorn app.main:app --reload</code>
             </p>

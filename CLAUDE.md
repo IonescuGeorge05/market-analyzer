@@ -62,6 +62,13 @@ Run both:
     uvicorn app.main:app --reload     # :8000
     cd frontend && npm run dev        # :5173
 
+Public demo on GitHub Pages: `.github/workflows/pages.yml` builds the
+frontend with `npm run build:demo` (VITE_DEMO=true), which reads saved
+Reports from `frontend/public/demo/` instead of calling the API, since Pages
+cannot run the backend. Those files are real runs, recorded by
+`python scripts/snapshot_demo.py`, which refuses to write anything if a run
+fell back to VADER or the template summary.
+
 ## Endpoints
 
 - `GET /analyze/{ticker}` — full pipeline, the real endpoint
