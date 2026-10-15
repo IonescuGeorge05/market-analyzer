@@ -25,6 +25,10 @@ class Settings(BaseSettings):
     llm_provider: str = "anthropic"          # "anthropic" | "openai"
     llm_model: str = "claude-haiku-4-5-20251001"
     openai_model: str = "gpt-4o-mini"
+    # Point the "openai" provider at any OpenAI-compatible API instead: Gemini,
+    # Groq, OpenRouter, DeepSeek, or a local Ollama. Blank means OpenAI itself.
+    # Set OPENAI_API_KEY and OPENAI_MODEL to that provider's key and model.
+    openai_base_url: str = ""
     news_limit: int = 15
     reddit_limit: int = 15
     subreddits: str = "stocks+investing+wallstreetbets"

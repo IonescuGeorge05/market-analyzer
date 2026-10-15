@@ -60,8 +60,20 @@ def test_temperature_and_max_tokens_reach_the_client(provider):
     assert m.max_tokens == 1200
 
 
+def test_base_url_points_openai_client_at_another_provider(provider):
+    """OPENAI_BASE_URL is how a free OpenAI-compatible provider is used."""
+    url = "https://api.groq.com/openai/v1"
+    provider("openai", openai_api_key="gsk-test", openai_base_url=url)
+    assert llm.chat(temperature=0, max_tokens=100).openai_api_base == url
+
+
+def test_blank_base_url_means_openai_itself(provider):
+    provider("openai", openai_api_key="sk-test", openai_base_url="  ")
+    assert llm.chat(temperature=0, max_tokens=100).openai_api_base is None
+
+
 def test_active_model_reports_the_configured_pair(provider):
-    provider("openai", openai_model="gpt-4o-mini")
+    provider("openai", openai_model="gpt-4o-mini", openai_base_url="")
     assert llm.active_model() == "openai:gpt-4o-mini"
     provider("anthropic", llm_model="claude-haiku-4-5-20251001")
     assert llm.active_model() == "anthropic:claude-haiku-4-5-20251001"

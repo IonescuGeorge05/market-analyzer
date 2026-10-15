@@ -37,6 +37,9 @@ def chat(temperature: float, max_tokens: int):
         return ChatOpenAI(
             model=settings.openai_model,
             api_key=settings.openai_api_key,
+            # None means api.openai.com. Anything else is another provider
+            # that speaks the same API - see openai_base_url in config.py.
+            base_url=settings.openai_base_url.strip() or None,
             temperature=temperature,
             max_tokens=max_tokens,
         )
@@ -59,4 +62,7 @@ def active_model() -> str:
     """Provider and model currently configured. For logs and debugging."""
     provider = settings.llm_provider.strip().lower()
     model = settings.openai_model if provider == "openai" else settings.llm_model
+    base = settings.openai_base_url.strip()
+    if provider == "openai" and base:
+        return f"{provider}:{model}@{base}"
     return f"{provider}:{model}"
