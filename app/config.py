@@ -29,6 +29,13 @@ class Settings(BaseSettings):
     # Groq, OpenRouter, DeepSeek, or a local Ollama. Blank means OpenAI itself.
     # Set OPENAI_API_KEY and OPENAI_MODEL to that provider's key and model.
     openai_base_url: str = ""
+    # For "thinking" models (Gemini 3.x, OpenAI o-series). Hidden reasoning
+    # tokens count against max_tokens: on gemini-3.5-flash at its default
+    # effort, the Reporter spent ~1080 of 1200 tokens thinking and its JSON
+    # was cut off mid-string. Neither scoring headlines nor a 150-word note
+    # needs it, so "minimal" is right there. Blank sends nothing, which
+    # non-reasoning models such as gpt-4o-mini require.
+    openai_reasoning_effort: str = ""
     news_limit: int = 15
     reddit_limit: int = 15
     subreddits: str = "stocks+investing+wallstreetbets"

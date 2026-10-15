@@ -40,6 +40,8 @@ def chat(temperature: float, max_tokens: int):
             # None means api.openai.com. Anything else is another provider
             # that speaks the same API - see openai_base_url in config.py.
             base_url=settings.openai_base_url.strip() or None,
+            # None sends no reasoning_effort at all - see config.py.
+            reasoning_effort=settings.openai_reasoning_effort.strip() or None,
             temperature=temperature,
             max_tokens=max_tokens,
         )

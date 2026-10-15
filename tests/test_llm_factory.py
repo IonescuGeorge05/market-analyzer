@@ -72,6 +72,14 @@ def test_blank_base_url_means_openai_itself(provider):
     assert llm.chat(temperature=0, max_tokens=100).openai_api_base is None
 
 
+def test_reasoning_effort_is_sent_only_when_configured(provider):
+    """gpt-4o-mini rejects the parameter, a thinking model needs it."""
+    provider("openai", openai_api_key="sk-test", openai_reasoning_effort="")
+    assert llm.chat(temperature=0, max_tokens=100).reasoning_effort is None
+    provider("openai", openai_api_key="sk-test", openai_reasoning_effort="minimal")
+    assert llm.chat(temperature=0, max_tokens=100).reasoning_effort == "minimal"
+
+
 def test_active_model_reports_the_configured_pair(provider):
     provider("openai", openai_model="gpt-4o-mini", openai_base_url="")
     assert llm.active_model() == "openai:gpt-4o-mini"
