@@ -1,7 +1,7 @@
 """
 Tests for reporter._signal() - the deterministic BUY/HOLD/SELL rule.
 
-Why these exist: CLAUDE.md rule 2 says the signal is computed in code, never by
+Why these exist: by design, the signal is computed in code, never by
 the LLM, so the same numbers must always produce the same signal. That property
 is only worth claiming if it is enforced by a test.
 
@@ -49,7 +49,7 @@ def test_thresholds_are_exclusive_at_both_edges():
     assert _signal(make(-0.15))[0] == "HOLD"
 
 
-# ---------- determinism (CLAUDE.md rule 2) ----------
+# ---------- determinism ----------
 
 def test_same_input_gives_same_output():
     a = make(0.42, items=12, trend="up", warnings=["reddit unavailable"])
@@ -92,7 +92,7 @@ def test_sell_confirmed_by_falling_price():
 
 
 def test_thin_evidence_lowers_confidence():
-    """CLAUDE.md rule 3: confidence drops when evidence is thin."""
+    """By design, confidence drops when evidence is thin."""
     assert _signal(make(0.5, items=4))[1] < _signal(make(0.5, items=20))[1]
 
 

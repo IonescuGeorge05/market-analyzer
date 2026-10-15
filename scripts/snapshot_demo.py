@@ -18,7 +18,7 @@ misrepresent what the system does when it is working. Source warnings such as
 about its inputs, and the dashboard shows them.
 
 Runs are sequential with a pause between tickers. Reddit blocked this IP once
-after burst traffic during development (see CLAUDE.md); do not parallelize.
+after burst traffic during development; do not parallelize.
 """
 import asyncio
 import json

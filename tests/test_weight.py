@@ -1,7 +1,7 @@
 """
 Tests for analyzer._weight() - source credibility weighting.
 
-Why these exist: CLAUDE.md rule 4 says news outranks Reddit and one viral post
+Why these exist: by design, news outranks Reddit and one viral post
 must never be able to flip the signal. The weight tiers are what enforce that,
 so the cap gets a test of its own.
 
@@ -59,7 +59,7 @@ def test_weight_is_monotonic_in_popularity():
     assert weights == sorted(weights)
 
 
-# ---------- CLAUDE.md rule 4: one viral post cannot flip the signal ----------
+# ---------- one viral post cannot flip the signal ----------
 
 def test_single_viral_post_cannot_flip_against_news_consensus():
     """

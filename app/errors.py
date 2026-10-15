@@ -2,7 +2,7 @@
 Shared error helpers.
 
 Lives outside app/agents/ on purpose: both the Analyzer and the Reporter need
-this, and CLAUDE.md rule 1 forbids one agent importing another's internals.
+this, and no agent may import another agent's internals.
 """
 
 
